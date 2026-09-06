@@ -16,10 +16,10 @@ export function Modal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-scrim backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-burgundy-soft/40 p-6 shadow-2xl">
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-border bg-burgundy-soft/40 p-6 shadow-2xl">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-foreground">{title}</h3>
           <button
@@ -52,7 +52,7 @@ export function CopyField({
   return (
     <div>
       <p className="text-xs text-muted">{label}</p>
-      <div className="mt-1 flex items-center gap-2 rounded-lg border border-white/10 bg-black/40 px-3 py-2">
+      <div className="mt-1 flex items-center gap-2 rounded-lg border border-border bg-surface-sunken px-3 py-2">
         {qr && (
           <button
             type="button"
@@ -71,6 +71,7 @@ export function CopyField({
       {showQr && (
         <Modal title="Scan to pay" onClose={() => setShowQr(false)}>
           <div className="flex flex-col items-center gap-4">
+            {/* Stays white in both themes — QR codes need a light quiet zone to scan reliably. */}
             <div className="rounded-xl bg-white p-4">
               <QRCodeSVG value={value} size={220} />
             </div>

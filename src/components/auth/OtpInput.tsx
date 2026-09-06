@@ -49,7 +49,7 @@ export function OtpInput({
           disabled={disabled}
           inputMode="numeric"
           maxLength={1}
-          className="h-12 w-10 rounded-lg border border-white/10 bg-black/40 text-center text-lg font-semibold text-foreground focus:border-burgundy-bright focus:outline-none disabled:opacity-60"
+          className="h-12 w-10 rounded-lg border border-border bg-surface-sunken text-center text-lg font-semibold text-foreground focus:border-burgundy-bright focus:outline-none disabled:opacity-60"
         />
       ))}
     </div>

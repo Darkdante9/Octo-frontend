@@ -32,7 +32,7 @@ export function DashboardShell({
 
         <div className="flex flex-1 flex-col">
           {/* topbar */}
-          <header className="flex items-center justify-between border-b border-white/10 px-8 py-4">
+          <header className="flex items-center justify-between border-b border-border px-8 py-4">
             <h1 className="text-lg font-semibold text-foreground">{title}</h1>
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-2 text-sm text-muted">

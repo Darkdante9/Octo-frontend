@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
-:root {
+/* Dark is the default theme; `[data-theme="light"]` below overrides every token. */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
   /* Octo brand: deep burgundy on near-black, with a brighter burgundy accent. */
   --background: #0a0506;
   --foreground: #f5eef0;
@@ -9,6 +13,142 @@
   --burgundy-bright: #b81f4d; /* accent / hover */
   --burgundy-soft: #2a0d14;  /* card surfaces */
   --muted: #b9a6ac;          /* secondary text */
+
+  /* Semantic surfaces — on dark these are translucent whites over the near-black page. */
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-raised: rgba(255, 255, 255, 0.03);
+  --surface-sunken: rgba(0, 0, 0, 0.35);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.28);
+  --divider: rgba(255, 255, 255, 0.05);
+  --hover: rgba(255, 255, 255, 0.07);
+
+  /* Specific surfaces that aren't just a raised/sunken step. */
+  --code-bg: rgba(0, 0, 0, 0.6);
+  --popover: rgba(10, 5, 6, 0.95);
+  --scrim: rgba(0, 0, 0, 0.7);
+  --card-gradient-end: rgba(0, 0, 0, 0.4);
+  --track: rgba(255, 255, 255, 0.18);
+
+  /* Status colors, tuned to sit on a dark background. */
+  --success: #34d399;
+  --success-bg: rgba(16, 185, 129, 0.15);
+  --success-border: rgba(16, 185, 129, 0.3);
+  --danger: #f87171;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+  --danger-border: rgba(239, 68, 68, 0.3);
+  --warning: #fbbf24;
+  --warning-bg: rgba(245, 158, 11, 0.12);
+  --warning-border: rgba(245, 158, 11, 0.3);
+
+  /* Frosted-glass ingredients, shared by every .glass* class below. */
+  --glass-fill: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-inset: rgba(255, 255, 255, 0.12);
+  --glass-shadow: rgba(0, 0, 0, 0.25);
+  --glass-nav-fill: rgba(14, 6, 9, 0.88);
+  --glass-strong-fill: rgba(20, 8, 12, 0.55);
+  --glass-btn-inset: rgba(255, 255, 255, 0.15);
+
+  /* Primary button fill. Translucent over near-black still composites dark, so white text holds. */
+  --btn-primary-from: rgba(184, 31, 77, 0.72);
+  --btn-primary-to: rgba(123, 23, 51, 0.6);
+  --btn-primary-from-hover: rgba(184, 31, 77, 0.92);
+  --btn-primary-to-hover: rgba(148, 27, 61, 0.78);
+
+  /* Radial bloom used by .glow-burgundy and the drifting .octo-ink blobs. */
+  --glow-a: rgba(184, 31, 77, 0.25);
+  --glow-b: rgba(123, 23, 51, 0.08);
+  --ink-a: rgba(184, 31, 77, 0.16);
+  --ink-b: rgba(123, 23, 51, 0.06);
+
+  /* Isometric grid line — carries its own alpha so each theme can tune it independently. */
+  --grid-line: rgba(184, 31, 77, 0.05);
+
+  /* Canvas palette as space-separated RGB triplets — the two <canvas> scenes read these at
+     runtime via getComputedStyle, since no stylesheet can reach their draw calls. */
+  --canvas-brand: 184 31 77;
+  --canvas-gold: 240 196 110;
+  --canvas-wash: 123 23 51;
+  --canvas-deep: 10 5 6;
+  --canvas-highlight: 255 255 255;
+  --canvas-shadow: 20 4 10;
+  --canvas-octo-alpha: 0.22;
+  --canvas-bubble-alpha: 1;
+}
+
+/* Light: "sunlit shallow water" — the metaphor reinterpreted, not inverted. Light falls from the
+   surface above, so glows soften, whites become refractive outlines, and the wash runs pale aqua. */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --background: #f6fafb;
+  --foreground: #14181a;
+
+  --burgundy: #7b1733;
+  --burgundy-bright: #b81f4d;
+  --burgundy-soft: #fdf3f6;
+  --muted: #5c6a70;
+
+  --surface: rgba(255, 255, 255, 0.7);
+  --surface-raised: rgba(255, 255, 255, 0.85);
+  --surface-sunken: rgba(16, 42, 50, 0.05);
+  --border: rgba(16, 42, 50, 0.12);
+  --border-strong: rgba(16, 42, 50, 0.28);
+  --divider: rgba(16, 42, 50, 0.08);
+  --hover: rgba(16, 42, 50, 0.06);
+
+  /* The scrim stays dark so a modal still separates from the page, just lighter than on dark. */
+  --code-bg: rgba(16, 42, 50, 0.06);
+  --popover: rgba(255, 255, 255, 0.97);
+  --scrim: rgba(16, 42, 50, 0.45);
+  --card-gradient-end: rgba(16, 42, 50, 0.04);
+  --track: rgba(16, 42, 50, 0.18);
+
+  --success: #067a52;
+  --success-bg: rgba(6, 122, 82, 0.1);
+  --success-border: rgba(6, 122, 82, 0.25);
+  --danger: #b3261e;
+  --danger-bg: rgba(179, 38, 30, 0.08);
+  --danger-border: rgba(179, 38, 30, 0.22);
+  --warning: #8a5a00;
+  --warning-bg: rgba(138, 90, 0, 0.08);
+  --warning-border: rgba(138, 90, 0, 0.22);
+
+  /* Light glass drops the white top-highlight — on a near-white panel it reads as nothing. */
+  --glass-fill: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(16, 42, 50, 0.1);
+  --glass-inset: transparent;
+  --glass-shadow: rgba(16, 42, 50, 0.1);
+  --glass-nav-fill: rgba(255, 255, 255, 0.85);
+  --glass-strong-fill: rgba(255, 255, 255, 0.72);
+  --glass-btn-inset: transparent;
+
+  /* Opaque here: the translucent fill composites to pale pink over a light page, dropping white
+     button text to 3.9:1. Solid burgundy restores it to 6.3:1. */
+  --btn-primary-from: rgb(184, 31, 77);
+  --btn-primary-to: rgb(140, 26, 58);
+  --btn-primary-from-hover: rgb(163, 27, 68);
+  --btn-primary-to-hover: rgb(120, 22, 50);
+
+  /* Bloom becomes a smear on white, so alphas drop sharply and the ink picks up an aqua cast. */
+  --glow-a: rgba(184, 31, 77, 0.1);
+  --glow-b: rgba(123, 23, 51, 0.04);
+  --ink-a: rgba(184, 31, 77, 0.07);
+  --ink-b: rgba(56, 140, 160, 0.05);
+
+  /* Roughly double the dark alpha — the same value is invisible against white. */
+  --grid-line: rgba(123, 23, 51, 0.11);
+
+  --canvas-brand: 150 24 62;
+  --canvas-gold: 196 146 48;
+  --canvas-wash: 168 214 224;
+  --canvas-deep: 246 250 251;
+  --canvas-highlight: 255 255 255;
+  --canvas-shadow: 18 52 62;
+  /* Higher than dark: with the glow halo dropped, the silhouette alone has to carry the shape. */
+  --canvas-octo-alpha: 0.5;
+  --canvas-bubble-alpha: 1.4;
 }
 
 @theme inline {
@@ -18,6 +158,29 @@
   --color-burgundy-bright: var(--burgundy-bright);
   --color-burgundy-soft: var(--burgundy-soft);
   --color-muted: var(--muted);
+
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-divider: var(--divider);
+  --color-hover: var(--hover);
+  --color-code-bg: var(--code-bg);
+  --color-popover: var(--popover);
+  --color-scrim: var(--scrim);
+  --color-card-gradient-end: var(--card-gradient-end);
+  --color-track: var(--track);
+
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-success-border: var(--success-border);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-border: var(--danger-border);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-border: var(--warning-border);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -43,8 +206,8 @@ body {
 .glow-burgundy {
   background: radial-gradient(
     60% 60% at 50% 40%,
-    rgba(184, 31, 77, 0.25) 0%,
-    rgba(123, 23, 51, 0.08) 45%,
+    var(--glow-a) 0%,
+    var(--glow-b) 45%,
     transparent 75%
   );
 }
@@ -61,47 +224,47 @@ body {
 
 /* Base frosted-glass surface: heavy blur + translucent fill + hairline edge. */
 .glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-fill);
   backdrop-filter: blur(24px) saturate(150%);
   -webkit-backdrop-filter: blur(24px) saturate(150%);
-  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  border: 0.5px solid var(--glass-border);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 8px 30px rgba(0, 0, 0, 0.25);
+    inset 0 1px 0 var(--glass-inset),
+    0 8px 30px var(--glass-shadow);
 }
 
 /* Navbar variant: near-opaque fill so scrolled content underneath doesn't bleed through. */
 .glass-nav {
-  background: rgba(14, 6, 9, 0.88);
+  background: var(--glass-nav-fill);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 var(--glass-inset),
+    0 8px 32px var(--glass-shadow),
     0 0 0 1px rgba(184, 31, 77, 0.08);
 }
 
 /* Stronger frosted panel for modal-like surfaces over busy backgrounds. */
 .glass-strong {
-  background: rgba(20, 8, 12, 0.55);
+  background: var(--glass-strong-fill);
   backdrop-filter: blur(32px) saturate(150%);
   -webkit-backdrop-filter: blur(32px) saturate(150%);
-  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border: 0.5px solid var(--glass-border);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 20px 60px rgba(0, 0, 0, 0.45);
+    inset 0 1px 0 var(--glass-inset),
+    0 20px 60px var(--glass-shadow);
 }
 
 /* Neutral glass button (secondary / outline actions). */
 .glass-btn {
   position: relative;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-fill);
   backdrop-filter: blur(24px) saturate(150%);
   -webkit-backdrop-filter: blur(24px) saturate(150%);
-  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border: 0.5px solid var(--glass-border);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 6px 20px rgba(0, 0, 0, 0.28);
+    inset 0 1px 0 var(--glass-btn-inset),
+    0 6px 20px var(--glass-shadow);
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
@@ -109,8 +272,8 @@ body {
     box-shadow 0.2s ease;
 }
 .glass-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--hover);
+  border-color: var(--border);
   transform: translateY(-1px);
 }
 .glass-btn:active {
@@ -121,11 +284,7 @@ body {
 .glass-btn-primary {
   position: relative;
   color: #fff;
-  background: linear-gradient(
-    135deg,
-    rgba(184, 31, 77, 0.72),
-    rgba(123, 23, 51, 0.6)
-  );
+  background: linear-gradient(135deg, var(--btn-primary-from), var(--btn-primary-to));
   backdrop-filter: blur(24px) saturate(170%);
   -webkit-backdrop-filter: blur(24px) saturate(170%);
   border: 0.5px solid rgba(255, 255, 255, 0.16);
@@ -139,17 +298,15 @@ body {
     box-shadow 0.2s ease;
 }
 .glass-btn-primary:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(184, 31, 77, 0.92),
-    rgba(148, 27, 61, 0.78)
-  );
+  background: linear-gradient(135deg, var(--btn-primary-from-hover), var(--btn-primary-to-hover));
   border-color: rgba(255, 255, 255, 0.26);
   transform: translateY(-1px);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.3),
     0 10px 30px rgba(184, 31, 77, 0.5);
 }
+/* The primary button keeps its burgundy fill and white text in both themes — white on #b81f4d
+   measures ~5.9:1, so it clears AA without a light-specific variant. */
 .glass-btn-primary:active {
   transform: translateY(0);
 }
@@ -224,8 +381,8 @@ body {
 .octo-ink {
   background: radial-gradient(
     circle,
-    rgba(184, 31, 77, 0.16) 0%,
-    rgba(123, 23, 51, 0.06) 45%,
+    var(--ink-a) 0%,
+    var(--ink-b) 45%,
     transparent 75%
   );
   will-change: transform;
@@ -262,5 +419,63 @@ body {
   .octo-ink-1,
   .octo-ink-2 {
     animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Theme switching
+ * ------------------------------------------------------------------ */
+
+/* The toggle shows the theme you'd switch *to*, swapped by CSS so it never hydrates wrong. */
+.theme-icon-sun,
+.theme-icon-moon {
+  display: none;
+}
+[data-theme="dark"] .theme-icon-sun,
+[data-theme="light"] .theme-icon-moon {
+  display: block;
+}
+
+/* Applied only for the duration of a theme swap — a permanent transition on every element makes
+   ordinary hovers and focus rings feel laggy, so this is added and removed around the switch. */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+  transition:
+    background-color 250ms ease,
+    border-color 250ms ease,
+    color 250ms ease,
+    fill 250ms ease,
+    stroke 250ms ease,
+    box-shadow 250ms ease !important;
+}
+
+/* The circular reveal is driven by a JS clip-path animation, so the default cross-fade is
+   suppressed and the incoming snapshot is stacked above the outgoing one. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 0;
+}
+::view-transition-new(root) {
+  z-index: 1;
+}
+
+/* Reduced motion: swap instantly, with neither the reveal nor the cross-fade. */
+@media (prefers-reduced-motion: reduce) {
+  .theme-transitioning,
+  .theme-transitioning *,
+  .theme-transitioning *::before,
+  .theme-transitioning *::after {
+    transition: none !important;
+  }
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
   }
 }

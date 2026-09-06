@@ -1,9 +1,19 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import {
+  readCanvasPalette,
+  watchCanvasPalette,
+  rgba,
+  separate,
+} from "@/lib/canvasPalette";
 
 /**
  Underwater "secure deposits" scene for the auth page.
+
+ Colours come from the `--canvas-*` theme tokens and are re-read when the theme flips. The draw
+ calls dereference the palette every frame, so the scene retheme s mid-animation without dropping
+ a swimmer, a coin in flight, or the deposit count.
  */
 
  
@@ -13,9 +23,6 @@ type AuthUnderwaterProps = {
   /** Called once per coin the moment it lands in the card. */
   onDeposit?: () => void;
 };
-
-const BURGUNDY = { r: 184, g: 31, b: 77 };
-const GOLD = { r: 240, g: 196, b: 110 };
 
 function rand(min: number, max: number) {
   return min + Math.random() * (max - min);
@@ -69,6 +76,10 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+
+    // Mutated in place by the theme observer; every draw call reads it fresh.
+    const palette = readCanvasPalette();
+    let unwatchPalette = watchCanvasPalette(palette);
 
     let width = 0;
     let height = 0;
@@ -203,17 +214,21 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
       ctx.save();
       ctx.translate(x, y);
       const g = ctx.createLinearGradient(-r, -r, r, r);
-      g.addColorStop(0, `rgba(${GOLD.r},${GOLD.g},${GOLD.b},0.95)`);
-      g.addColorStop(1, `rgba(${GOLD.r - 60},${GOLD.g - 70},70,0.95)`);
+      g.addColorStop(0, rgba(palette.gold, 0.95));
+      g.addColorStop(1, rgba(palette.gold, 0.95, -60));
       ctx.fillStyle = g;
       ctx.beginPath();
       ctx.ellipse(0, 0, rx, r, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = "rgba(255,240,200,0.8)";
-      ctx.lineWidth = 1;
+      // The cream rim is what makes gold pop out of darkness; on light it disappears, so the
+      // coin gets a dark contour instead or it reads completely flat.
+      ctx.strokeStyle = palette.isLight
+        ? rgba(palette.shadow, 0.55)
+        : rgba(palette.highlight, 0.8, -15);
+      ctx.lineWidth = palette.isLight ? 1.2 : 1;
       ctx.stroke();
       // Octo "O" mark
-      ctx.strokeStyle = `rgba(${BURGUNDY.r},${BURGUNDY.g},${BURGUNDY.b},0.9)`;
+      ctx.strokeStyle = rgba(palette.brand, 0.9);
       ctx.lineWidth = 1.4;
       ctx.beginPath();
       ctx.ellipse(0, 0, rx * 0.45, r * 0.5, 0, 0, Math.PI * 2);
@@ -228,18 +243,22 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
       ctx.translate(s.x, s.y + bob);
       ctx.rotate(s.angle + Math.PI / 2);
       ctx.scale(scale, scale);
-      ctx.globalAlpha = 0.4;
+      // Raised in light mode so the silhouette doesn't dissolve into the page.
+      ctx.globalAlpha = Math.max(0.4, palette.octoAlpha);
 
-      const tint = (a: number) =>
-        `rgba(${BURGUNDY.r + 30},${BURGUNDY.g + 20},${BURGUNDY.b + 20},${a})`;
+      // Separating from the page means lightening on dark and darkening on light.
+      const tint = (a: number) => separate(palette, palette.brand, 26, a);
 
-      const halo = ctx.createRadialGradient(0, 0, 3, 0, 0, 40);
-      halo.addColorStop(0, tint(0.5));
-      halo.addColorStop(1, tint(0));
-      ctx.fillStyle = halo;
-      ctx.beginPath();
-      ctx.arc(0, 0, 40, 0, Math.PI * 2);
-      ctx.fill();
+      // Skipped on light: a glow reads as separation against dark, but as a smear against white.
+      if (!palette.isLight) {
+        const halo = ctx.createRadialGradient(0, 0, 3, 0, 0, 40);
+        halo.addColorStop(0, tint(0.5));
+        halo.addColorStop(1, tint(0));
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(0, 0, 40, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
       ctx.strokeStyle = tint(0.85);
       ctx.lineCap = "round";
@@ -267,13 +286,13 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
       ctx.ellipse(0, 0, 17, 22, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.globalAlpha = 0.6;
-      ctx.fillStyle = "rgba(255,255,255,0.9)";
+      ctx.globalAlpha = palette.isLight ? 0.8 : 0.6;
+      ctx.fillStyle = rgba(palette.highlight, 0.9);
       ctx.beginPath();
       ctx.arc(-6, -3, 2.8, 0, Math.PI * 2);
       ctx.arc(6, -3, 2.8, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = "rgba(20,4,10,0.9)";
+      ctx.fillStyle = rgba(palette.shadow, 0.9);
       ctx.beginPath();
       ctx.arc(-6, -3, 1.3, 0, Math.PI * 2);
       ctx.arc(6, -3, 1.3, 0, Math.PI * 2);
@@ -313,8 +332,8 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
       ctx.save();
       ctx.globalAlpha = 0.9;
       const glow = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, 14);
-      glow.addColorStop(0, `rgba(${GOLD.r},${GOLD.g},${GOLD.b},0.5)`);
-      glow.addColorStop(1, `rgba(${GOLD.r},${GOLD.g},${GOLD.b},0)`);
+      glow.addColorStop(0, rgba(palette.gold, 0.5));
+      glow.addColorStop(1, rgba(palette.gold, 0));
       ctx.fillStyle = glow;
       ctx.beginPath();
       ctx.arc(p.x, p.y, 14, 0, Math.PI * 2);
@@ -332,8 +351,10 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
       ctx.save();
       // ambient glow behind the card
       const aura = ctx.createRadialGradient(x, y, 10, x, y, 220);
-      aura.addColorStop(0, `rgba(${BURGUNDY.r},${BURGUNDY.g},${BURGUNDY.b},0.22)`);
-      aura.addColorStop(1, `rgba(${BURGUNDY.r},${BURGUNDY.g},${BURGUNDY.b},0)`);
+      // A bloom that reads as glow out of darkness becomes a pink smear on white, so light mode
+      // keeps it as a much fainter halo.
+      aura.addColorStop(0, rgba(palette.brand, palette.isLight ? 0.09 : 0.22));
+      aura.addColorStop(1, rgba(palette.brand, 0));
       ctx.fillStyle = aura;
       ctx.beginPath();
       ctx.arc(x, y, 220, 0, Math.PI * 2);
@@ -352,7 +373,7 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
       // pulse ring on accept
       if (shieldPulse > 0.01) {
         ctx.globalAlpha = shieldPulse * 0.5;
-        ctx.strokeStyle = `rgba(${GOLD.r},${GOLD.g},${GOLD.b},1)`;
+        ctx.strokeStyle = rgba(palette.gold, 1);
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.arc(0, 0, 18 + (1 - shieldPulse) * 26, 0, Math.PI * 2);
@@ -363,8 +384,8 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
       ctx.globalAlpha = 0.9;
       const breathe = 0.5 + 0.5 * Math.sin(time * 2);
       const shieldGrad = ctx.createLinearGradient(0, -16, 0, 16);
-      shieldGrad.addColorStop(0, `rgba(${BURGUNDY.r + 60},${BURGUNDY.g + 20},${BURGUNDY.b + 20},0.9)`);
-      shieldGrad.addColorStop(1, `rgba(${BURGUNDY.r},${BURGUNDY.g},${BURGUNDY.b},0.7)`);
+      shieldGrad.addColorStop(0, separate(palette, palette.brand, 50, 0.9));
+      shieldGrad.addColorStop(1, rgba(palette.brand, 0.7));
       ctx.fillStyle = shieldGrad;
       ctx.beginPath();
       ctx.moveTo(0, -16);
@@ -375,7 +396,11 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
       ctx.lineTo(-13, -9);
       ctx.closePath();
       ctx.fill();
-      ctx.strokeStyle = `rgba(255,255,255,${0.4 + breathe * 0.35})`;
+      // The breathing outline sits on the shield's edge against the page, so it has to flip;
+      // the padlock below stays white because it sits on the burgundy shield body.
+      ctx.strokeStyle = palette.isLight
+        ? rgba(palette.shadow, 0.3 + breathe * 0.3)
+        : rgba(palette.highlight, 0.4 + breathe * 0.35);
       ctx.lineWidth = 1.4;
       ctx.stroke();
 
@@ -403,8 +428,29 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
     }
 
     function drawBubble(b: Bubble) {
+      const a = b.alpha * palette.bubbleAlpha;
+
+      // These are flat white discs — invisible on a light page. Light mode draws them the way a
+      // real bubble reads against brightness: a refractive outline plus a small specular catch.
+      if (palette.isLight) {
+        ctx.beginPath();
+        ctx.fillStyle = rgba(palette.brand, a * 0.35);
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.strokeStyle = rgba(palette.brand, a * 1.6);
+        ctx.lineWidth = 0.9;
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.fillStyle = rgba(palette.highlight, Math.min(1, a * 4));
+        ctx.arc(b.x - b.r * 0.3, b.y - b.r * 0.3, Math.max(0.5, b.r * 0.22), 0, Math.PI * 2);
+        ctx.fill();
+        return;
+      }
+
       ctx.beginPath();
-      ctx.fillStyle = `rgba(255,255,255,${b.alpha})`;
+      ctx.fillStyle = rgba(palette.highlight, a);
       ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
       ctx.fill();
     }
@@ -425,8 +471,14 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
 
       // depth wash
       const wash = ctx.createLinearGradient(0, 0, 0, height);
-      wash.addColorStop(0, "rgba(123,23,51,0.10)");
-      wash.addColorStop(1, "rgba(10,5,6,0)");
+      // On light the sun is overhead: clear at the surface, deepening to aqua with depth.
+      if (palette.isLight) {
+        wash.addColorStop(0, rgba(palette.wash, 0));
+        wash.addColorStop(1, rgba(palette.wash, 0.35));
+      } else {
+        wash.addColorStop(0, rgba(palette.wash, 0.1));
+        wash.addColorStop(1, rgba(palette.deep, 0));
+      }
       ctx.fillStyle = wash;
       ctx.fillRect(0, 0, width, height);
 
@@ -510,7 +562,7 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
           continue;
         }
         ctx.beginPath();
-        ctx.strokeStyle = `rgba(${GOLD.r},${GOLD.g},${GOLD.b},${rg.life * 0.4})`;
+        ctx.strokeStyle = rgba(palette.gold, rg.life * 0.4);
         ctx.lineWidth = 2;
         ctx.arc(rg.x, rg.y, rg.r, 0, Math.PI * 2);
         ctx.stroke();
@@ -540,13 +592,21 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
     window.addEventListener("resize", resize);
     document.addEventListener("visibilitychange", onVisibility);
 
-    if (reduceMotion) {
-      running = false;
+    // Draw a single static frame, no animation loop.
+    function drawStatic() {
       ctx.clearRect(0, 0, width, height);
       updateTarget();
       drawSecurity(0);
       for (const s of swimmers) drawOctopus(s, 0);
       for (const b of bubbles) drawBubble(b);
+    }
+
+    if (reduceMotion) {
+      running = false;
+      drawStatic();
+      // Without a redraw the static frame would keep the previous theme's colours forever.
+      unwatchPalette();
+      unwatchPalette = watchCanvasPalette(palette, drawStatic);
     } else {
       raf = requestAnimationFrame(frame);
     }
@@ -554,6 +614,7 @@ export function AuthUnderwater({ targetRef, onDeposit }: AuthUnderwaterProps) {
     return () => {
       running = false;
       cancelAnimationFrame(raf);
+      unwatchPalette();
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", onVisibility);
     };

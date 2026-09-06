@@ -97,7 +97,7 @@ export default function DashboardHome() {
           </Link>
         </div>
 
-        <div className="my-8 h-px bg-white/10" />
+        <div className="my-8 h-px bg-border" />
 
         <h3 className="text-sm font-medium text-foreground">
           Your Master Wallets at a glance
@@ -127,7 +127,7 @@ export default function DashboardHome() {
 
 function EmptyState() {
   return (
-    <div className="rounded-2xl border border-dashed border-white/15 bg-burgundy-soft/20 p-10 text-center">
+    <div className="rounded-2xl border border-dashed border-border bg-burgundy-soft/20 p-10 text-center">
       <p className="text-foreground">No master wallets yet</p>
       <p className="mt-1 text-sm text-muted">
         Create your first master wallet to start receiving deposits.
@@ -158,7 +158,7 @@ function WalletCard({
   const dailyBudget = sponsorship?.daily_budget_stroops;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-burgundy-soft/30 p-5">
+    <div className="rounded-2xl border border-border bg-burgundy-soft/30 p-5">
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-burgundy/40 text-burgundy-bright">
@@ -176,7 +176,7 @@ function WalletCard({
         <ManageMenu walletId={wallet.id} />
       </div>
 
-      <div className="mt-5 h-px bg-white/10" />
+      <div className="mt-5 h-px bg-border" />
 
       <div className="mt-4 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
         <div>
@@ -198,14 +198,14 @@ function WalletCard({
           <div className="mt-1 flex items-center gap-1.5">
             <span
               className={`inline-block h-2 w-2 shrink-0 rounded-full ${
-                sponsorEnabled ? "bg-emerald-400" : "bg-white/20"
+                sponsorEnabled ? "bg-success" : "bg-track"
               }`}
               aria-hidden
             />
             <span
               className={
                 sponsorEnabled
-                  ? "font-medium text-emerald-300"
+                  ? "font-medium text-success"
                   : "text-muted"
               }
             >
@@ -235,7 +235,7 @@ function ManageMenu({ walletId }: { walletId: string }) {
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 rounded-lg border border-white/15 px-3 py-1.5 text-xs text-foreground hover:border-white/30"
+        className="flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:border-border-strong"
       >
         Manage <span className="text-muted">⋮</span>
       </button>
@@ -247,16 +247,16 @@ function ManageMenu({ walletId }: { walletId: string }) {
             className="fixed inset-0 z-10"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 z-20 mt-2 w-44 overflow-hidden rounded-xl border border-white/10 bg-black/90 backdrop-blur-md">
+          <div className="absolute right-0 z-20 mt-2 w-44 overflow-hidden rounded-xl border border-border bg-popover backdrop-blur-md">
             <Link
               href={`/dashboard/wallets/${walletId}`}
-              className="flex items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-white/5"
+              className="flex items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-hover"
             >
               ▦ Go to dashboard
             </Link>
             <Link
               href={`/dashboard/wallets/${walletId}/api`}
-              className="flex items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-white/5"
+              className="flex items-center gap-2 px-4 py-3 text-sm text-foreground hover:bg-hover"
             >
               ↗ API settings
             </Link>

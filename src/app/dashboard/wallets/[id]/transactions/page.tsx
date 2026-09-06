@@ -143,7 +143,7 @@ export default function TransactionsPage({
         />
 
         <div className="flex flex-1 flex-col">
-          <header className="flex items-center justify-between border-b border-white/10 px-8 py-4">
+          <header className="flex items-center justify-between border-b border-border px-8 py-4">
             <div className="flex items-center gap-2 text-sm text-muted">
               <Link href="/dashboard" className="hover:text-foreground">
                 My Wallets
@@ -194,7 +194,7 @@ export default function TransactionsPage({
 
             <div className="flex items-center justify-between">
               {/* asset filter tabs */}
-              <div className="flex gap-1 rounded-lg border border-white/10 bg-white/[0.03] p-1">
+              <div className="flex gap-1 rounded-lg border border-border bg-surface-raised p-1">
                 {assetTabs.map((code) => (
                   <button
                     key={code}
@@ -217,7 +217,7 @@ export default function TransactionsPage({
             </div>
 
             {error && (
-              <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+              <p className="rounded-lg border border-danger-border bg-danger-bg px-3 py-2 text-sm text-danger">
                 {error}
               </p>
             )}
@@ -233,7 +233,7 @@ export default function TransactionsPage({
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-white/10 text-left text-[11px] uppercase tracking-wide text-muted">
+                      <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted">
                         <th className="pb-3 pr-4 font-medium">Type</th>
                         <th className="pb-3 pr-4 font-medium">Amount</th>
                         <th className="pb-3 pr-4 font-medium">Counterparty</th>
@@ -242,7 +242,7 @@ export default function TransactionsPage({
                         <th className="pb-3 font-medium">Date</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className="divide-y divide-divider">
                       {filtered.map((t) => (
                         <TxRow key={t.id} tx={t} onSelect={() => setSelected(t)} />
                       ))}
@@ -285,14 +285,14 @@ function TxRow({
   return (
     <tr
       onClick={onSelect}
-      className="cursor-pointer transition-colors hover:bg-white/[0.02]"
+      className="cursor-pointer transition-colors hover:bg-surface-raised"
     >
       <td className="py-3 pr-4">
         <div className="flex flex-wrap items-center gap-1.5">
           <span
             className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium ${
               isDeposit
-                ? "bg-emerald-500/10 text-emerald-400"
+                ? "bg-success-bg text-success"
                 : "bg-burgundy/20 text-burgundy-bright"
             }`}
           >
@@ -300,7 +300,7 @@ function TxRow({
           </span>
           {isUnattributed && (
             <span
-              className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-400"
+              className="inline-flex items-center rounded-md bg-warning-bg px-2 py-0.5 text-xs font-medium text-warning"
               title="Sent to the base G... address with no muxed id or memo, so it could not be tied to a customer address."
             >
               Unattributed
@@ -339,7 +339,7 @@ function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={`inline-flex items-center gap-1 text-xs ${
-        ok ? "text-emerald-400" : "text-amber-400"
+        ok ? "text-success" : "text-warning"
       }`}
     >
       {ok ? "✓" : "!"} <span className="capitalize">{status}</span>
@@ -362,7 +362,7 @@ function TransactionDetail({
           <span
             className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium ${
               isDeposit
-                ? "bg-emerald-500/10 text-emerald-400"
+                ? "bg-success-bg text-success"
                 : "bg-burgundy/20 text-burgundy-bright"
             }`}
           >
@@ -371,7 +371,7 @@ function TransactionDetail({
           <StatusBadge status={tx.status} />
         </div>
 
-        <div className="rounded-lg bg-black/30 p-3 text-center">
+        <div className="rounded-lg bg-surface-sunken p-3 text-center">
           <p className="text-xs text-muted">Amount</p>
           <p className="mt-1 text-xl font-semibold text-foreground">
             {isDeposit ? "+" : "-"}
@@ -380,7 +380,7 @@ function TransactionDetail({
         </div>
 
         {isDeposit && tx.address_id === null && (
-          <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-300">
+          <p className="rounded-lg border border-warning-border bg-warning-bg px-3 py-2 text-xs text-warning">
             Unattributed deposit — the sender paid the base account directly without a muxed
             address or memo id, so it could not be matched to a customer address.
           </p>
@@ -396,11 +396,11 @@ function TransactionDetail({
         )}
 
         <div className="grid grid-cols-2 gap-3 text-xs">
-          <div className="rounded-lg bg-black/30 p-3">
+          <div className="rounded-lg bg-surface-sunken p-3">
             <p className="text-muted">Ledger</p>
             <p className="mt-1 font-mono text-foreground">{tx.ledger ?? "—"}</p>
           </div>
-          <div className="rounded-lg bg-black/30 p-3">
+          <div className="rounded-lg bg-surface-sunken p-3">
             <p className="text-muted">Memo ID</p>
             <p className="mt-1 font-mono text-foreground">{tx.memo_id ?? "—"}</p>
           </div>

@@ -118,7 +118,7 @@ export default function WalletOverview({
 
         <div className="flex flex-1 flex-col">
           {/* topbar */}
-          <header className="flex items-center justify-between border-b border-white/10 px-8 py-4">
+          <header className="flex items-center justify-between border-b border-border px-8 py-4">
             <div className="flex items-center gap-2 text-sm text-muted">
               <Link href="/dashboard" className="hover:text-foreground">
                 My Wallets
@@ -189,7 +189,7 @@ export default function WalletOverview({
                 {balances.length === 0 ? (
                   <Empty>No assets yet.</Empty>
                 ) : (
-                  <ul className="divide-y divide-white/5">
+                  <ul className="divide-y divide-divider">
                     {balances.map((b, i) => (
                       <li
                         key={i}
@@ -256,7 +256,7 @@ export default function WalletOverview({
                       <th className="py-2">Date</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-divider">
                     {txns.map((t) => (
                       <tr key={t.id} className="text-foreground/90">
                         <td className="py-3 font-mono text-xs">
@@ -282,7 +282,7 @@ export default function WalletOverview({
                           )}
                         </td>
                         <td className="py-3">
-                          <span className="rounded-md bg-white/5 px-2 py-0.5 text-xs capitalize">
+                          <span className="rounded-md bg-hover px-2 py-0.5 text-xs capitalize">
                             {t.direction}
                           </span>
                         </td>
@@ -401,7 +401,7 @@ function TrustlineModal({
     return (
       <Modal title="USDC trustline" onClose={onDone}>
         <div className="text-center">
-          <p className={`text-3xl ${ok ? "text-burgundy-bright" : "text-amber-400"}`}>
+          <p className={`text-3xl ${ok ? "text-burgundy-bright" : "text-warning"}`}>
             {ok ? "✓" : "!"}
           </p>
           <p className="mt-2 font-medium capitalize text-foreground">
@@ -443,7 +443,7 @@ function TrustlineModal({
         small XLM base reserve and requires signing from your master wallet.
       </p>
 
-      <div className="mt-5 space-y-1 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs">
+      <div className="mt-5 space-y-1 rounded-lg border border-border bg-surface-sunken px-3 py-2 text-xs">
         <p className="text-muted">
           Asset: <span className="text-foreground">USDC</span>
         </p>
@@ -462,7 +462,7 @@ function TrustlineModal({
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Your encryption password"
           autoComplete="current-password"
-          className="mt-1 w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-foreground placeholder:text-muted/50 focus:border-burgundy-bright focus:outline-none"
+          className="mt-1 w-full rounded-lg border border-border bg-surface-sunken px-3 py-2 text-sm text-foreground placeholder:text-muted/50 focus:border-burgundy-bright focus:outline-none"
         />
       </div>
 
@@ -508,14 +508,14 @@ function DepositModal({
         <div className="mt-5 space-y-4">
           <CopyField label="Muxed address (recommended)" value={latest.muxed_address} />
           <CopyField label="Base address (G…+memo fallback)" value={baseAddress} />
-          <div className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs text-muted">
+          <div className="rounded-lg border border-border bg-surface-sunken px-3 py-2 text-xs text-muted">
             If the sender can&apos;t use the <code className="text-foreground">M…</code>{" "}
             address, send to the base address with memo (id){" "}
             <span className="text-foreground">{latest.memo_id}</span>.
           </div>
         </div>
       ) : (
-        <div className="mt-5 rounded-lg border border-dashed border-white/15 p-5 text-center text-sm text-muted">
+        <div className="mt-5 rounded-lg border border-dashed border-border p-5 text-center text-sm text-muted">
           No addresses yet. Generate one to receive a deposit.
           <button
             onClick={onNewAddress}
@@ -651,7 +651,7 @@ function WithdrawModal({
     return (
       <Modal title="Withdrawal" onClose={finish}>
         <div className="text-center">
-          <p className={`text-3xl ${ok ? "text-burgundy-bright" : "text-amber-400"}`}>
+          <p className={`text-3xl ${ok ? "text-burgundy-bright" : "text-warning"}`}>
             {ok ? "✓" : "!"}
           </p>
           <p className="mt-2 font-medium capitalize text-foreground">
@@ -746,7 +746,7 @@ function WithdrawModal({
                 className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
                   a.code === selectedCode
                     ? "border-burgundy-bright bg-burgundy/20 text-foreground"
-                    : "border-white/10 bg-black/40 text-muted hover:border-white/25"
+                    : "border-border bg-surface-sunken text-muted hover:border-border-strong"
                 }`}
               >
                 {a.code}
@@ -765,7 +765,7 @@ function WithdrawModal({
             value={destination}
             onChange={(e) => setDestination(e.target.value.trim())}
             placeholder="G… or M…"
-            className="mt-1 w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted/50 focus:border-burgundy-bright focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-border bg-surface-sunken px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted/50 focus:border-burgundy-bright focus:outline-none"
           />
         </div>
         <div>
@@ -775,7 +775,7 @@ function WithdrawModal({
             onChange={(e) => setAmount(e.target.value)}
             inputMode="decimal"
             placeholder="0.0000000"
-            className="mt-1 w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-foreground placeholder:text-muted/50 focus:border-burgundy-bright focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-border bg-surface-sunken px-3 py-2 text-sm text-foreground placeholder:text-muted/50 focus:border-burgundy-bright focus:outline-none"
           />
         </div>
         <div>
@@ -786,7 +786,7 @@ function WithdrawModal({
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Your encryption password"
             autoComplete="current-password"
-            className="mt-1 w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-foreground placeholder:text-muted/50 focus:border-burgundy-bright focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-border bg-surface-sunken px-3 py-2 text-sm text-foreground placeholder:text-muted/50 focus:border-burgundy-bright focus:outline-none"
           />
           <p className="mt-1 text-[11px] text-muted">
             Signs locally on this device — your key never leaves the browser.

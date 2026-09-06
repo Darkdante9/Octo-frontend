@@ -8,10 +8,10 @@ export function DashboardBackground() {
 
       {/* Isometric grid, matching AuthShell but dimmer. */}
       <div
-        className="absolute inset-0 opacity-[0.025]"
+        className="absolute inset-0"
         style={{
           backgroundImage:
-            "linear-gradient(var(--burgundy-bright) 1px, transparent 1px), linear-gradient(90deg, var(--burgundy-bright) 1px, transparent 1px)",
+            "linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px)",
           backgroundSize: "48px 48px",
           transform: "perspective(900px) rotateX(55deg) scale(1.6)",
           transformOrigin: "top center",

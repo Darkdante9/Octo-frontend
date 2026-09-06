@@ -54,7 +54,7 @@ export default function SettingsPage() {
 
         <form
           onSubmit={onSubmit}
-          className="mt-6 space-y-6 rounded-2xl border border-white/10 bg-burgundy-soft/30 p-6"
+          className="mt-6 space-y-6 rounded-2xl border border-border bg-burgundy-soft/30 p-6"
         >
           <div>
             <label className="text-sm font-medium text-foreground">
@@ -68,13 +68,13 @@ export default function SettingsPage() {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="e.g. tosin"
               maxLength={20}
-              className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-foreground placeholder:text-muted/60 focus:border-burgundy-bright focus:outline-none"
+              className="mt-2 w-full rounded-xl border border-border bg-surface-raised px-4 py-3 text-sm text-foreground placeholder:text-muted/60 focus:border-burgundy-bright focus:outline-none"
             />
           </div>
 
           <div>
             <label className="text-sm font-medium text-foreground">Email</label>
-            <p className="mt-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-muted">
+            <p className="mt-2 rounded-xl border border-border bg-surface-raised px-4 py-3 text-sm text-muted">
               {user.email}
             </p>
           </div>

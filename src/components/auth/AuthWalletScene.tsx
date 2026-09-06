@@ -48,7 +48,7 @@ export function AuthWalletScene() {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-muted">
+            <span className="rounded-lg border border-border bg-hover px-2.5 py-1 text-xs text-muted">
               octo ▾
             </span>
             <span className="flex items-center gap-1.5 text-[11px] text-muted">
@@ -59,8 +59,8 @@ export function AuthWalletScene() {
           <span
             className={`rounded-md px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide transition-colors ${
               flash
-                ? "bg-emerald-500/20 text-emerald-300"
-                : "bg-white/5 text-muted"
+                ? "bg-success-bg text-success"
+                : "bg-hover text-muted"
             }`}
           >
             {flash ? "+ secured" : "live"}
@@ -71,7 +71,7 @@ export function AuthWalletScene() {
           <p className="text-[11px] text-muted">Cumulative Balance</p>
           <p
             className={`mt-1 font-mono text-3xl font-semibold tabular-nums transition-colors duration-300 ${
-              flash ? "text-emerald-300" : "text-foreground"
+              flash ? "text-success" : "text-foreground"
             }`}
           >
             {formatUSD(balance)}
@@ -82,13 +82,13 @@ export function AuthWalletScene() {
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-xl border border-white/10 bg-black/30 p-3">
+          <div className="rounded-xl border border-border bg-surface-sunken p-3">
             <p className="text-[10px] text-muted">Unswept</p>
             <p className="mt-0.5 text-sm font-semibold text-foreground">
               {formatUSD(2208.78)}
             </p>
           </div>
-          <div className="rounded-xl border border-white/10 bg-black/30 p-3">
+          <div className="rounded-xl border border-border bg-surface-sunken p-3">
             <p className="text-[10px] text-muted">Master Wallets</p>
             <p className="mt-0.5 text-sm font-semibold text-foreground">6</p>
           </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
@@ -38,6 +39,7 @@ export function Navbar() {
 
         {/* Desktop actions */}
         <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle className="rounded-full border-transparent" />
           <Link
             href="/login"
             className="text-sm text-foreground transition-colors hover:text-burgundy-bright"
@@ -76,7 +78,7 @@ export function Navbar() {
               <li key={l.label}>
                 <Link
                   href={l.href}
-                  className="block rounded-lg px-3 py-2 text-sm text-muted hover:bg-white/5 hover:text-foreground"
+                  className="block rounded-lg px-3 py-2 text-sm text-muted hover:bg-hover hover:text-foreground"
                   onClick={() => setOpen(false)}
                 >
                   {l.label}
@@ -84,6 +86,11 @@ export function Navbar() {
               </li>
             ))}
           </ul>
+
+          <div className="mt-3 flex items-center justify-between border-t border-border px-3 pt-3">
+            <span className="text-sm text-muted">Appearance</span>
+            <ThemeToggle />
+          </div>
           <div className="mt-3 flex flex-col gap-2">
             <Link
               href="/signup"

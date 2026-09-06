@@ -8,7 +8,7 @@ export function Callout({
   children: React.ReactNode;
 }) {
   const styles = {
-    note: "border-white/15 bg-white/[0.03] text-muted",
+    note: "border-border bg-surface-raised text-muted",
     warning: "border-burgundy/40 bg-burgundy/10 text-burgundy-bright",
     tip: "border-burgundy/30 bg-burgundy-soft/30 text-foreground",
   }[type];
@@ -29,9 +29,9 @@ export function Code({
   label?: string;
 }) {
   return (
-    <div className="my-5 overflow-hidden rounded-xl border border-white/10 bg-black/60">
+    <div className="my-5 overflow-hidden rounded-xl border border-border bg-code-bg">
       {label && (
-        <div className="border-b border-white/10 px-4 py-2 text-xs text-muted">
+        <div className="border-b border-border px-4 py-2 text-xs text-muted">
           {label}
         </div>
       )}
@@ -52,7 +52,7 @@ export function Step({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative mb-10 border-l border-white/10 pl-8">
+    <div className="relative mb-10 border-l border-border pl-8">
       <span className="absolute -left-3.5 flex h-7 w-7 items-center justify-center rounded-full bg-burgundy text-xs font-semibold text-white">
         {n}
       </span>
@@ -70,16 +70,16 @@ export function ParamTable({
   rows: { name: string; type: string; required?: boolean; desc: string }[];
 }) {
   return (
-    <div className="my-5 overflow-hidden rounded-xl border border-white/10">
+    <div className="my-5 overflow-hidden rounded-xl border border-border">
       <table className="w-full text-left text-sm">
-        <thead className="bg-white/[0.03] text-xs text-muted">
+        <thead className="bg-surface-raised text-xs text-muted">
           <tr>
             <th className="px-4 py-2.5">Field</th>
             <th className="px-4 py-2.5">Type</th>
             <th className="px-4 py-2.5">Description</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/5">
+        <tbody className="divide-y divide-divider">
           {rows.map((r) => (
             <tr key={r.name}>
               <td className="px-4 py-3 font-mono text-foreground">
@@ -103,11 +103,11 @@ export function ParamTable({
 export function Endpoint({ method, path }: { method: string; path: string }) {
   const color =
     {
-      GET: "bg-emerald-500/15 text-emerald-300",
+      GET: "bg-success-bg text-success",
       POST: "bg-burgundy/30 text-burgundy-bright",
-    }[method] ?? "bg-white/10 text-foreground";
+    }[method] ?? "bg-hover text-foreground";
   return (
-    <div className="my-4 flex items-center gap-3 rounded-lg border border-white/10 bg-black/40 px-4 py-2.5">
+    <div className="my-4 flex items-center gap-3 rounded-lg border border-border bg-surface-sunken px-4 py-2.5">
       <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${color}`}>
         {method}
       </span>
@@ -118,7 +118,7 @@ export function Endpoint({ method, path }: { method: string; path: string }) {
 
 export function Prose({ children }: { children: React.ReactNode }) {
   return (
-    <div className="max-w-3xl text-sm leading-relaxed text-muted [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground [&_p]:mt-4 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5 [&_strong]:text-foreground [&_a]:text-burgundy-bright [&_a]:underline [&_code]:rounded [&_code]:bg-white/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-foreground">
+    <div className="max-w-3xl text-sm leading-relaxed text-muted [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:mt-6 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-foreground [&_p]:mt-4 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5 [&_strong]:text-foreground [&_a]:text-burgundy-bright [&_a]:underline [&_code]:rounded [&_code]:bg-hover [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-foreground">
       {children}
     </div>
   );

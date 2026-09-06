@@ -288,19 +288,19 @@ export default function GasSponsorship() {
       </Callout>
 
       <h2>Error reference</h2>
-      <div className="my-5 overflow-hidden rounded-xl border border-white/10">
+      <div className="my-5 overflow-hidden rounded-xl border border-border">
         <table className="w-full text-left text-sm">
-          <thead className="bg-white/[0.03] text-xs text-muted">
+          <thead className="bg-surface-raised text-xs text-muted">
             <tr>
               <th className="px-4 py-2.5">HTTP status</th>
               <th className="px-4 py-2.5">Error code</th>
               <th className="px-4 py-2.5">Meaning</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-divider">
             <tr>
               <td className="px-4 py-3">
-                <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-foreground">
+                <code className="rounded bg-hover px-1.5 py-0.5 font-mono text-foreground">
                   400
                 </code>
               </td>
@@ -314,7 +314,7 @@ export default function GasSponsorship() {
             </tr>
             <tr>
               <td className="px-4 py-3">
-                <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-foreground">
+                <code className="rounded bg-hover px-1.5 py-0.5 font-mono text-foreground">
                   400
                 </code>
               </td>
@@ -329,7 +329,7 @@ export default function GasSponsorship() {
             </tr>
             <tr>
               <td className="px-4 py-3">
-                <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-foreground">
+                <code className="rounded bg-hover px-1.5 py-0.5 font-mono text-foreground">
                   400
                 </code>
               </td>
@@ -343,7 +343,7 @@ export default function GasSponsorship() {
             </tr>
             <tr>
               <td className="px-4 py-3">
-                <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-foreground">
+                <code className="rounded bg-hover px-1.5 py-0.5 font-mono text-foreground">
                   403
                 </code>
               </td>
@@ -357,7 +357,7 @@ export default function GasSponsorship() {
             </tr>
             <tr>
               <td className="px-4 py-3">
-                <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-foreground">
+                <code className="rounded bg-hover px-1.5 py-0.5 font-mono text-foreground">
                   409
                 </code>
               </td>
@@ -372,7 +372,7 @@ export default function GasSponsorship() {
             </tr>
             <tr>
               <td className="px-4 py-3">
-                <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-foreground">
+                <code className="rounded bg-hover px-1.5 py-0.5 font-mono text-foreground">
                   429
                 </code>
               </td>

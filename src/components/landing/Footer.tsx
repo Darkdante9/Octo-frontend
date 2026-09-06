@@ -18,7 +18,7 @@ const COLUMNS = [
 
 export function Footer() {
   return (
-    <footer id="company" className="border-t border-white/10 px-4 py-16">
+    <footer id="company" className="border-t border-border px-4 py-16">
       <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Logo />
@@ -55,7 +55,7 @@ export function Footer() {
         ))}
       </div>
 
-      <div className="mx-auto mt-12 flex max-w-6xl items-center justify-between border-t border-white/10 pt-6 text-xs text-muted">
+      <div className="mx-auto mt-12 flex max-w-6xl items-center justify-between border-t border-border pt-6 text-xs text-muted">
         <span>© {new Date().getFullYear()} Octo. All rights reserved.</span>
         <div className="flex gap-4">
           <Link

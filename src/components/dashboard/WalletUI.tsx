@@ -18,7 +18,7 @@ export function Stat({
   sub?: string;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-burgundy-soft/30 p-4">
+    <div className="rounded-xl border border-border bg-burgundy-soft/30 p-4">
       <p className="text-[11px] text-muted">{label}</p>
       <p className="mt-1 text-xl font-semibold text-foreground">{value}</p>
       {sub && <p className="mt-1 text-[11px] text-muted">{sub}</p>}
@@ -41,7 +41,7 @@ export function ActionButton({
     <button
       onClick={onClick}
       disabled={disabled || loading}
-      className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-foreground transition-colors hover:border-burgundy/50 disabled:cursor-not-allowed disabled:opacity-40"
+      className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface-raised px-4 py-2 text-sm text-foreground transition-colors hover:border-burgundy/50 disabled:cursor-not-allowed disabled:opacity-40"
     >
       {loading && <OctoSpinner size={16} />}
       {label}
@@ -59,7 +59,7 @@ export function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-white/10 bg-burgundy-soft/20 p-5">
+    <section className="rounded-2xl border border-border bg-burgundy-soft/20 p-5">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">{title}</h3>
         {action}

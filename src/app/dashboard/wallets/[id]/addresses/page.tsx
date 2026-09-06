@@ -100,7 +100,7 @@ export default function AddressesPage({
         />
 
         <div className="flex flex-1 flex-col">
-          <header className="flex items-center justify-between border-b border-white/10 px-8 py-4">
+          <header className="flex items-center justify-between border-b border-border px-8 py-4">
             <div className="flex items-center gap-2 text-sm text-muted">
               <Link href="/dashboard" className="hover:text-foreground">
                 My Wallets
@@ -159,14 +159,14 @@ export default function AddressesPage({
               </div>
               <Link
                 href={`/dashboard/wallets/${id}/whitelist`}
-                className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-foreground transition-colors hover:border-burgundy/50"
+                className="rounded-lg border border-border bg-surface-raised px-4 py-2 text-sm text-foreground transition-colors hover:border-burgundy/50"
               >
                 🛡 Withdrawal allowlist
               </Link>
             </div>
 
             {error && (
-              <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+              <p className="rounded-lg border border-danger-border bg-danger-bg px-3 py-2 text-sm text-danger">
                 {error}
               </p>
             )}
@@ -180,14 +180,14 @@ export default function AddressesPage({
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-white/10 text-left text-[11px] uppercase tracking-wide text-muted">
+                      <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted">
                         <th className="pb-3 pr-4 font-medium">Customer ref</th>
                         <th className="pb-3 pr-4 font-medium">Muxed address</th>
                         <th className="pb-3 pr-4 font-medium">Memo ID</th>
                         <th className="pb-3 font-medium">Received</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className="divide-y divide-divider">
                       {addresses.map((a) => (
                         <AddressRow key={a.id} address={a} onSelect={() => setSelected(a)} />
                       ))}
@@ -218,7 +218,7 @@ function AddressRow({
   return (
     <tr
       onClick={onSelect}
-      className="cursor-pointer transition-colors hover:bg-white/[0.02]"
+      className="cursor-pointer transition-colors hover:bg-surface-raised"
     >
       <td className="py-3 pr-4 text-foreground">
         {address.customer_ref ?? <span className="text-muted">—</span>}
@@ -246,7 +246,7 @@ function AddressDetail({
   return (
     <Modal title="Address details" onClose={onClose}>
       <div className="space-y-4">
-        <div className="rounded-lg bg-black/30 p-3 text-center">
+        <div className="rounded-lg bg-surface-sunken p-3 text-center">
           <p className="text-xs text-muted">Total received</p>
           <p className="mt-1 text-xl font-semibold text-foreground">
             {stroopsToAmount(address.received_stroops)} XLM
@@ -257,11 +257,11 @@ function AddressDetail({
         <CopyField label="Base address (G…) — fallback" value={address.base_address} />
 
         <div className="grid grid-cols-2 gap-3 text-xs">
-          <div className="rounded-lg bg-black/30 p-3">
+          <div className="rounded-lg bg-surface-sunken p-3">
             <p className="text-muted">Memo ID (fallback)</p>
             <p className="mt-1 font-mono text-foreground">{address.memo_id}</p>
           </div>
-          <div className="rounded-lg bg-black/30 p-3">
+          <div className="rounded-lg bg-surface-sunken p-3">
             <p className="text-muted">Customer ref</p>
             <p className="mt-1 font-mono text-foreground">
               {address.customer_ref ?? "—"}

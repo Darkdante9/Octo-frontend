@@ -1,5 +1,8 @@
 import { USDC_TESTNET } from "@/lib/wallets";
 
+// The white disc is each asset mark's own backdrop — the glyphs are solid black, so it stays
+// white in both themes rather than following the surface tokens.
+
 function XlmIcon({ className }: { className: string }) {
   return (
     <span

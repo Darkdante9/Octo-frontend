@@ -82,7 +82,7 @@ export default function DevelopersPage({
         <WalletSidebar walletId={id} walletName={wallet?.label ?? "Master wallet"} />
 
         <div className="flex flex-1 flex-col">
-          <header className="flex items-center justify-between border-b border-white/10 px-8 py-4">
+          <header className="flex items-center justify-between border-b border-border px-8 py-4">
             <div className="flex items-center gap-2 text-sm text-muted">
               <Link href="/dashboard" className="hover:text-foreground">
                 My Wallets
@@ -127,7 +127,7 @@ export default function DevelopersPage({
               )}
 
               {/* info note */}
-              <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-muted">
+              <div className="mt-6 rounded-xl border border-border bg-surface-raised p-4 text-sm text-muted">
                 Use the <strong className="text-foreground">Wallet ID</strong>{" "}
                 and{" "}
                 <strong className="text-foreground">API Key</strong> below to
@@ -173,8 +173,8 @@ export default function DevelopersPage({
 
               {/* quickstart */}
               {keyInfo?.configured && (
-                <div className="mt-8 overflow-hidden rounded-xl border border-white/10 bg-black/50">
-                  <div className="border-b border-white/10 px-4 py-2 text-xs text-muted">
+                <div className="mt-8 overflow-hidden rounded-xl border border-border bg-code-bg">
+                  <div className="border-b border-border px-4 py-2 text-xs text-muted">
                     Quickstart — generate a deposit address
                   </div>
                   <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-foreground/80">
@@ -211,7 +211,7 @@ function Row({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3.5">
+    <div className="flex items-center justify-between rounded-xl border border-border bg-surface-raised px-4 py-3.5">
       <span className="text-sm text-muted">{label}</span>
       {children}
     </div>
@@ -244,7 +244,7 @@ function ActionBtn({
       className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
         primary
           ? "bg-burgundy text-white hover:bg-burgundy-bright"
-          : "border border-white/10 text-foreground hover:border-white/30"
+          : "border border-border text-foreground hover:border-border-strong"
       }`}
     >
       {label}
