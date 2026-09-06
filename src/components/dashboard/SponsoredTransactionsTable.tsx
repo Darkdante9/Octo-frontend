@@ -9,9 +9,9 @@ import { stroopsToAmount } from "@/lib/wallets";
 import { CopyButton } from "@/components/CopyButton";
 
 const STATUS_BADGE: Record<string, string> = {
-  confirmed: "bg-emerald-500/15 text-emerald-400",
-  failed: "bg-red-500/15 text-red-400",
-  pending: "bg-amber-500/15 text-amber-400",
+  confirmed: "bg-success-bg text-success",
+  failed: "bg-danger-bg text-danger",
+  pending: "bg-warning-bg text-warning",
 };
 
 export function SponsoredTransactionsTable({
@@ -66,7 +66,7 @@ export function SponsoredTransactionsTable({
   const monthFeeStroops = monthRows.reduce((sum, r) => sum + r.fee_stroops, 0);
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-burgundy-soft/30 p-5">
+    <section className="rounded-2xl border border-border bg-burgundy-soft/30 p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-sm font-semibold text-foreground">
           Sponsored transactions
@@ -89,7 +89,7 @@ export function SponsoredTransactionsTable({
               <th className="py-2">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-divider">
             {rows === null ? (
               <EmptyRow>Loading…</EmptyRow>
             ) : rows.length === 0 ? (
@@ -128,7 +128,7 @@ export function SponsoredTransactionsTable({
           <button
             onClick={loadMore}
             disabled={loadingMore}
-            className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-foreground transition-colors hover:border-burgundy/50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg border border-border bg-surface-raised px-4 py-2 text-sm text-foreground transition-colors hover:border-burgundy/50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loadingMore ? "Loading…" : "Load more"}
           </button>
@@ -153,7 +153,7 @@ function HashCell({ hash }: { hash: string | null }) {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const cls = STATUS_BADGE[status] ?? "bg-white/10 text-muted";
+  const cls = STATUS_BADGE[status] ?? "bg-hover text-muted";
   return (
     <span
       className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${cls}`}

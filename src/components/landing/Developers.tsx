@@ -26,15 +26,15 @@ export function Developers() {
             </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/60">
-            <div className="flex items-center gap-4 border-b border-white/10 px-4 py-2.5 text-xs text-muted">
+          <div className="overflow-hidden rounded-2xl border border-border bg-code-bg">
+            <div className="flex items-center gap-4 border-b border-border px-4 py-2.5 text-xs text-muted">
               {["cURL", "Python", "JavaScript", "PHP", "Go", "Java"].map(
                 (t, i) => (
                   <span
                     key={t}
                     className={
                       i === 0
-                        ? "rounded-md bg-white/10 px-2 py-1 text-foreground"
+                        ? "rounded-md bg-hover px-2 py-1 text-foreground"
                         : ""
                     }
                   >

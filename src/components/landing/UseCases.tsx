@@ -46,7 +46,7 @@ export function UseCases() {
           {CASES.map((c) => (
             <div
               key={c.title}
-              className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-burgundy-soft/40 to-black/40 p-7"
+              className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-burgundy-soft/40 to-card-gradient-end p-7"
             >
               <div className="pointer-events-none absolute -bottom-12 -left-8 h-40 w-40 rounded-full bg-burgundy/20 blur-3xl" />
               <div className="flex items-center gap-2">

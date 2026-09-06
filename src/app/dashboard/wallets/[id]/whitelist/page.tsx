@@ -118,7 +118,7 @@ export default function WhitelistPage({
         />
 
         <div className="flex flex-1 flex-col">
-          <header className="flex items-center justify-between border-b border-white/10 px-8 py-4">
+          <header className="flex items-center justify-between border-b border-border px-8 py-4">
             <div className="flex items-center gap-2 text-sm text-muted">
               <Link href="/dashboard" className="hover:text-foreground">
                 My Wallets
@@ -183,7 +183,7 @@ export default function WhitelistPage({
             </Panel>
 
             {error && (
-              <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+              <p className="rounded-lg border border-danger-border bg-danger-bg px-3 py-2 text-sm text-danger">
                 {error}
               </p>
             )}
@@ -196,7 +196,7 @@ export default function WhitelistPage({
                     value={addr}
                     onChange={(e) => setAddr(e.target.value)}
                     placeholder="GABC... or MABC..."
-                    className="mt-1 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm font-mono text-foreground outline-none focus:border-burgundy/50"
+                    className="mt-1 w-full rounded-lg border border-border bg-surface-sunken px-3 py-2 text-sm font-mono text-foreground outline-none focus:border-burgundy/50"
                   />
                 </div>
                 <div className="min-w-[160px]">
@@ -205,7 +205,7 @@ export default function WhitelistPage({
                     value={label}
                     onChange={(e) => setLabel(e.target.value)}
                     placeholder="e.g. Treasury"
-                    className="mt-1 w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-foreground outline-none focus:border-burgundy/50"
+                    className="mt-1 w-full rounded-lg border border-border bg-surface-sunken px-3 py-2 text-sm text-foreground outline-none focus:border-burgundy/50"
                   />
                 </div>
                 <ActionButton
@@ -223,14 +223,14 @@ export default function WhitelistPage({
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-white/10 text-left text-[11px] uppercase tracking-wide text-muted">
+                      <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted">
                         <th className="pb-3 pr-4 font-medium">Address</th>
                         <th className="pb-3 pr-4 font-medium">Label</th>
                         <th className="pb-3 pr-4 font-medium">Added</th>
                         <th className="pb-3 font-medium"></th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className="divide-y divide-divider">
                       {entries.map((entry) => (
                         <tr key={entry.id}>
                           <td className="py-3 pr-4 font-mono text-xs text-burgundy-bright">
@@ -250,7 +250,7 @@ export default function WhitelistPage({
                             <button
                               onClick={() => handleRemove(entry.id)}
                               disabled={removingId === entry.id}
-                              className="text-xs text-muted hover:text-red-400 disabled:opacity-40"
+                              className="text-xs text-muted hover:text-danger disabled:opacity-40"
                             >
                               {removingId === entry.id ? "Removing…" : "Remove"}
                             </button>

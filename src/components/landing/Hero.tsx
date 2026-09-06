@@ -59,11 +59,11 @@ function DashboardPreview() {
   ];
 
   return (
-    <div className="mt-16 overflow-hidden rounded-2xl border border-white/10 bg-burgundy-soft/40 shadow-2xl">
+    <div className="mt-16 overflow-hidden rounded-2xl border border-border bg-burgundy-soft/40 shadow-2xl">
       <div className="flex">
         {/* sidebar */}
-        <aside className="hidden w-56 shrink-0 border-r border-white/10 p-4 sm:block">
-          <div className="rounded-lg border border-white/10 px-3 py-2 text-sm text-muted">
+        <aside className="hidden w-56 shrink-0 border-r border-border p-4 sm:block">
+          <div className="rounded-lg border border-border px-3 py-2 text-sm text-muted">
             octo ▾
           </div>
           <div className="mt-2 flex items-center gap-2 px-3 text-xs text-muted">
@@ -97,7 +97,7 @@ function DashboardPreview() {
                 Here&apos;s everything happening with your payments in Octo
               </p>
             </div>
-            <div className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-muted">
+            <div className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted">
               Get Report
             </div>
           </div>
@@ -106,7 +106,7 @@ function DashboardPreview() {
             {stats.map((s) => (
               <div
                 key={s.label}
-                className="rounded-xl border border-white/10 bg-black/30 p-4"
+                className="rounded-xl border border-border bg-surface-sunken p-4"
               >
                 <p className="text-[11px] text-muted">{s.label}</p>
                 <p className="mt-1 text-xl font-semibold text-foreground">
@@ -123,7 +123,7 @@ function DashboardPreview() {
               {["O", "C", "T", "P", "+2"].map((b) => (
                 <span
                   key={b}
-                  className="flex h-7 w-7 items-center justify-center rounded-md border border-white/10 bg-black/40 text-xs text-muted"
+                  className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-surface-sunken text-xs text-muted"
                 >
                   {b}
                 </span>

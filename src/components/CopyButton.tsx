@@ -29,7 +29,7 @@ export function CopyButton({
       aria-label={copied ? "Copied" : label}
     >
       {copied ? (
-        <span className="inline-flex items-center gap-1 text-emerald-400">
+        <span className="inline-flex items-center gap-1 text-success">
           <CheckIcon /> Copied
         </span>
       ) : (

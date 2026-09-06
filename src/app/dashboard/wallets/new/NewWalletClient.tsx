@@ -137,7 +137,7 @@ export function NewWalletClient() {
                 <label className="text-sm font-medium text-foreground">
                   Blockchain network
                 </label>
-                <div className="mt-2 flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-foreground">
+                <div className="mt-2 flex items-center justify-between rounded-xl border border-border bg-surface-raised px-4 py-3 text-sm text-foreground">
                   <span className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-burgundy-bright" />
                     Stellar — Testnet
@@ -154,7 +154,7 @@ export function NewWalletClient() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Acme master wallet"
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-foreground placeholder:text-muted/60 focus:border-burgundy-bright focus:outline-none"
+                  className="mt-2 w-full rounded-xl border border-border bg-surface-raised px-4 py-3 text-sm text-foreground placeholder:text-muted/60 focus:border-burgundy-bright focus:outline-none"
                 />
               </div>
 
@@ -167,7 +167,7 @@ export function NewWalletClient() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="What is this wallet for?"
                   rows={2}
-                  className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-foreground placeholder:text-muted/60 focus:border-burgundy-bright focus:outline-none"
+                  className="mt-2 w-full resize-none rounded-xl border border-border bg-surface-raised px-4 py-3 text-sm text-foreground placeholder:text-muted/60 focus:border-burgundy-bright focus:outline-none"
                 />
               </div>
 
@@ -185,7 +185,7 @@ export function NewWalletClient() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="At least 8 characters"
                   autoComplete="new-password"
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-foreground placeholder:text-muted/60 focus:border-burgundy-bright focus:outline-none"
+                  className="mt-2 w-full rounded-xl border border-border bg-surface-raised px-4 py-3 text-sm text-foreground placeholder:text-muted/60 focus:border-burgundy-bright focus:outline-none"
                 />
                 <input
                   type="password"
@@ -193,7 +193,7 @@ export function NewWalletClient() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm password"
                   autoComplete="new-password"
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-foreground placeholder:text-muted/60 focus:border-burgundy-bright focus:outline-none"
+                  className="mt-2 w-full rounded-xl border border-border bg-surface-raised px-4 py-3 text-sm text-foreground placeholder:text-muted/60 focus:border-burgundy-bright focus:outline-none"
                 />
               </div>
 
@@ -239,11 +239,11 @@ function RecoveryReveal({
         never share it.
       </p>
 
-      <div className="mt-5 grid grid-cols-3 gap-2 rounded-xl border border-white/10 bg-black/40 p-4">
+      <div className="mt-5 grid grid-cols-3 gap-2 rounded-xl border border-border bg-surface-sunken p-4">
         {mnemonic.split(" ").map((word, i) => (
           <span
             key={i}
-            className="rounded-md bg-white/5 px-2 py-1.5 text-center text-sm text-foreground"
+            className="rounded-md bg-hover px-2 py-1.5 text-center text-sm text-foreground"
           >
             <span className="mr-1 text-muted">{i + 1}.</span>
             {word}
@@ -251,7 +251,7 @@ function RecoveryReveal({
         ))}
       </div>
 
-      <div className="mt-5 rounded-lg bg-black/30 p-3 text-xs">
+      <div className="mt-5 rounded-lg bg-surface-sunken p-3 text-xs">
         <p className="text-muted">Address</p>
         <p className="mt-1 break-all font-mono text-foreground">
           {wallet.address}

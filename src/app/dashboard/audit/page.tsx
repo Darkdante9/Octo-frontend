@@ -18,9 +18,9 @@ const CATEGORIES = [
 const CATEGORY_COLOR: Record<string, string> = {
   authentication: "bg-burgundy-bright",
   wallet: "bg-sky-400",
-  address: "bg-emerald-400",
+  address: "bg-success",
   credentials: "bg-fuchsia-400",
-  configuration: "bg-amber-400",
+  configuration: "bg-warning",
 };
 
 export default function AuditLogsPage() {
@@ -54,7 +54,7 @@ export default function AuditLogsPage() {
       <div className="mx-auto max-w-6xl">
         {/* controls */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex flex-1 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5">
+          <div className="flex flex-1 items-center gap-2 rounded-xl border border-border bg-surface-raised px-4 py-2.5">
             <span className="text-muted">⌕</span>
             <input
               value={search}
@@ -66,7 +66,7 @@ export default function AuditLogsPage() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-foreground focus:outline-none"
+            className="rounded-xl border border-border bg-surface-raised px-4 py-2.5 text-sm text-foreground focus:outline-none"
           >
             {CATEGORIES.map((c) => (
               <option key={c.value} value={c.value} className="bg-background">
@@ -77,9 +77,9 @@ export default function AuditLogsPage() {
         </div>
 
         {/* table */}
-        <div className="mt-6 overflow-hidden rounded-2xl border border-white/10">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-border">
           <table className="w-full text-left text-sm">
-            <thead className="bg-white/[0.03] text-xs uppercase tracking-wide text-muted">
+            <thead className="bg-surface-raised text-xs uppercase tracking-wide text-muted">
               <tr>
                 <th className="px-5 py-3">Activity</th>
                 <th className="px-5 py-3">User</th>
@@ -88,7 +88,7 @@ export default function AuditLogsPage() {
                 <th className="px-5 py-3 text-right">Time</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-divider">
               {logs === null ? (
                 <Row colSpan>Loading…</Row>
               ) : logs.length === 0 ? (
@@ -107,7 +107,7 @@ export default function AuditLogsPage() {
                       <span className="inline-flex items-center gap-1.5 text-xs capitalize text-muted">
                         <span
                           className={`h-1.5 w-1.5 rounded-full ${
-                            CATEGORY_COLOR[l.category] ?? "bg-white/40"
+                            CATEGORY_COLOR[l.category] ?? "bg-muted"
                           }`}
                         />
                         {l.category}
@@ -115,7 +115,7 @@ export default function AuditLogsPage() {
                     </td>
                     <td className="px-5 py-3.5">
                       {l.ip_address ? (
-                        <span className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-xs">
+                        <span className="rounded-md bg-hover px-2 py-0.5 font-mono text-xs">
                           {l.ip_address}
                         </span>
                       ) : (

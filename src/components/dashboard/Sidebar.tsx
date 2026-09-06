@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { displayName, type User } from "@/lib/auth";
 import { GasPumpIcon } from "./icons";
 
@@ -28,7 +29,7 @@ export function Sidebar({ user }: { user?: User | null }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-r border-white/10 bg-black/40 px-3 py-5">
+    <aside className="flex w-64 shrink-0 flex-col border-r border-border bg-surface-sunken px-3 py-5">
       <div className="px-3">
         <Logo />
         <p className="mt-5 text-sm font-medium text-foreground">
@@ -73,7 +74,7 @@ export function Sidebar({ user }: { user?: User | null }) {
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                 active
                   ? "bg-burgundy/25 text-foreground"
-                  : "text-muted hover:bg-white/5 hover:text-foreground"
+                  : "text-muted hover:bg-hover hover:text-foreground"
               }`}
             >
               <span className="w-4 text-center opacity-80">{item.icon}</span>
@@ -83,15 +84,20 @@ export function Sidebar({ user }: { user?: User | null }) {
         })}
       </nav>
 
-      <div className="rounded-xl border border-white/10 bg-burgundy-soft/30 p-4">
+      <div className="rounded-xl border border-border bg-burgundy-soft/30 p-4">
         <p className="text-sm font-semibold text-foreground">Free Plan</p>
         <p className="mt-1 text-[11px] text-muted">0 of 100 Addresses</p>
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-hover">
           <div className="h-full w-[2%] rounded-full bg-burgundy-bright" />
         </div>
         <button className="mt-4 w-full rounded-lg bg-foreground py-2 text-xs font-semibold text-background">
           Upgrade
         </button>
+      </div>
+
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <span className="text-[11px] text-muted">Appearance</span>
+        <ThemeToggle />
       </div>
     </aside>
   );

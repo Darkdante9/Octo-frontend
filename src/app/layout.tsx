@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Oswald } from "next/font/google";
-import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemedToaster } from "@/components/ThemedToaster";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,10 +36,17 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${oswald.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Blocking, before first paint — otherwise every load flashes the default theme first. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
-        <Toaster theme="dark" position="top-center" richColors />
+        <ThemeProvider>
+          {children}
+          <ThemedToaster />
+        </ThemeProvider>
       </body>
     </html>
   );

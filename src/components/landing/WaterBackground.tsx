@@ -1,15 +1,22 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import {
+  readCanvasPalette,
+  watchCanvasPalette,
+  rgba,
+  separate,
+} from "@/lib/canvasPalette";
 
 /**
  * Full-screen fixed canvas with drifting bubbles and animated octopuses.
  * Animation pauses if tab is hidden or user prefers reduced motion.
  * Sits beneath all content as a static underwater background.
+ *
+ * Colours come from the `--canvas-*` theme tokens rather than constants, and are re-read on a
+ * theme change — the draw calls dereference the palette every frame, so the scene retheme s
+ * mid-flight without remounting or resetting any octopus position.
  */
-
-// Octo brand burgundy, used to tint bubbles/octopus so the scene stays on-brand.
-const BURGUNDY = { r: 184, g: 31, b: 77 }; // #b81f4d
 
 type Bubble = {
   x: number;
@@ -63,6 +70,11 @@ export function WaterBackground() {
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+
+    // Mutated in place by the theme observer; every draw call reads it fresh. The reduced-motion
+    // path re-subscribes below with a redraw callback, since it has no loop to pick changes up.
+    const palette = readCanvasPalette();
+    let unwatchPalette = watchCanvasPalette(palette);
 
     let width = 0;
     let height = 0;
@@ -175,22 +187,40 @@ export function WaterBackground() {
         b.y,
         b.r,
       );
-      grad.addColorStop(0, `rgba(255,255,255,${b.alpha * 1.1})`);
-      grad.addColorStop(
-        0.5,
-        `rgba(${BURGUNDY.r + 40},${BURGUNDY.g + 40},${BURGUNDY.b + 40},${b.alpha * 0.5})`,
-      );
-      grad.addColorStop(1, `rgba(${BURGUNDY.r},${BURGUNDY.g},${BURGUNDY.b},0)`);
+      const a = b.alpha * palette.bubbleAlpha;
+
+      // A glowing white body reads as light against dark but vanishes on white, so in light mode
+      // the bubble becomes refractive instead: a tinted edge with a small specular catch.
+      if (palette.isLight) {
+        grad.addColorStop(0, rgba(palette.highlight, a * 0.5));
+        grad.addColorStop(0.55, rgba(palette.brand, a * 0.16));
+        grad.addColorStop(1, rgba(palette.brand, a * 0.5));
+      } else {
+        grad.addColorStop(0, rgba(palette.highlight, a * 1.1));
+        grad.addColorStop(0.5, separate(palette, palette.brand, 40, a * 0.5));
+        grad.addColorStop(1, rgba(palette.brand, 0));
+      }
       ctx!.beginPath();
       ctx!.fillStyle = grad;
       ctx!.arc(b.x, b.y, b.r, 0, Math.PI * 2);
       ctx!.fill();
+
       // crisp highlight rim
       ctx!.beginPath();
-      ctx!.strokeStyle = `rgba(255,255,255,${b.alpha * 0.6})`;
-      ctx!.lineWidth = 0.6;
+      ctx!.strokeStyle = palette.isLight
+        ? rgba(palette.brand, a * 0.85)
+        : rgba(palette.highlight, a * 0.6);
+      ctx!.lineWidth = palette.isLight ? 0.9 : 0.6;
       ctx!.arc(b.x, b.y, b.r, Math.PI * 1.1, Math.PI * 1.7);
       ctx!.stroke();
+
+      // Light mode adds the specular dot a real bubble shows under overhead sunlight.
+      if (palette.isLight) {
+        ctx!.beginPath();
+        ctx!.fillStyle = rgba(palette.highlight, a * 0.9);
+        ctx!.arc(b.x - b.r * 0.32, b.y - b.r * 0.32, Math.max(0.6, b.r * 0.16), 0, Math.PI * 2);
+        ctx!.fill();
+      }
     }
 
     function drawOctopus(o: Octopus, time: number) {
@@ -203,21 +233,25 @@ export function WaterBackground() {
       // Head points along travel; +90° so the "top" of the octopus leads.
       c.rotate(o.angle + Math.PI / 2);
       c.scale(s, s);
-      c.globalAlpha = 0.22; // semi-transparent, sits behind content
+      // Light mode raises this — the same alpha that reads as a silhouette on near-black
+      // dissolves into white.
+      c.globalAlpha = palette.octoAlpha;
 
+      // Separating from the page means lightening on dark and darkening on light.
       const tint = (a: number) =>
-        `rgba(${Math.min(255, BURGUNDY.r + o.hueShift + 30)},${
-          BURGUNDY.g + 20
-        },${BURGUNDY.b + 20},${a})`;
+        separate(palette, palette.brand, o.hueShift + 26, a);
 
-      // soft glow halo
-      const halo = c.createRadialGradient(0, 0, 4, 0, 0, 46);
-      halo.addColorStop(0, tint(0.5));
-      halo.addColorStop(1, tint(0));
-      c.fillStyle = halo;
-      c.beginPath();
-      c.arc(0, 0, 46, 0, Math.PI * 2);
-      c.fill();
+      // A glow halo separates the creature from darkness, but on a bright page it just smears it
+      // into a haze — light mode relies on the silhouette instead.
+      if (!palette.isLight) {
+        const halo = c.createRadialGradient(0, 0, 4, 0, 0, 46);
+        halo.addColorStop(0, tint(0.5));
+        halo.addColorStop(1, tint(0));
+        c.fillStyle = halo;
+        c.beginPath();
+        c.arc(0, 0, 46, 0, Math.PI * 2);
+        c.fill();
+      }
 
       // 8 tentacles, waving with a phase offset per tentacle
       c.strokeStyle = tint(0.85);
@@ -248,13 +282,13 @@ export function WaterBackground() {
       c.fill();
 
       // eyes
-      c.globalAlpha = 0.35;
-      c.fillStyle = "rgba(255,255,255,0.9)";
+      c.globalAlpha = palette.isLight ? 0.55 : 0.35;
+      c.fillStyle = rgba(palette.highlight, 0.9);
       c.beginPath();
       c.arc(-7, -4, 3.4, 0, Math.PI * 2);
       c.arc(7, -4, 3.4, 0, Math.PI * 2);
       c.fill();
-      c.fillStyle = "rgba(20,4,10,0.9)";
+      c.fillStyle = rgba(palette.shadow, 0.9);
       c.beginPath();
       c.arc(-7, -4, 1.5, 0, Math.PI * 2);
       c.arc(7, -4, 1.5, 0, Math.PI * 2);
@@ -277,10 +311,16 @@ export function WaterBackground() {
 
       ctx!.clearRect(0, 0, width, height);
 
-      // subtle depth gradient wash
+      // Subtle depth wash. On dark it fades a burgundy tint out toward the page; on light the sun
+      // is overhead, so it runs clear at the surface and deepens to aqua further down.
       const wash = ctx!.createLinearGradient(0, 0, 0, height);
-      wash.addColorStop(0, "rgba(123,23,51,0.05)");
-      wash.addColorStop(1, "rgba(10,5,6,0)");
+      if (palette.isLight) {
+        wash.addColorStop(0, rgba(palette.wash, 0));
+        wash.addColorStop(1, rgba(palette.wash, 0.32));
+      } else {
+        wash.addColorStop(0, rgba(palette.wash, 0.05));
+        wash.addColorStop(1, rgba(palette.deep, 0));
+      }
       ctx!.fillStyle = wash;
       ctx!.fillRect(0, 0, width, height);
 
@@ -330,12 +370,19 @@ export function WaterBackground() {
     window.addEventListener("resize", resize);
     document.addEventListener("visibilitychange", onVisibility);
 
-    if (reduceMotion) {
-      // Draw a single static frame, no animation loop.
-      running = false;
+    // Draw a single static frame, no animation loop.
+    function drawStatic() {
       ctx.clearRect(0, 0, width, height);
       for (const o of octopuses) drawOctopus(o, 0);
       for (const b of bubbles) drawBubble(b);
+    }
+
+    if (reduceMotion) {
+      running = false;
+      drawStatic();
+      // Without a redraw the static frame would keep the previous theme's colours forever.
+      unwatchPalette();
+      unwatchPalette = watchCanvasPalette(palette, drawStatic);
     } else {
       raf = requestAnimationFrame(frame);
     }
@@ -343,6 +390,7 @@ export function WaterBackground() {
     return () => {
       running = false;
       cancelAnimationFrame(raf);
+      unwatchPalette();
       window.removeEventListener("resize", resize);
       document.removeEventListener("visibilitychange", onVisibility);
     };

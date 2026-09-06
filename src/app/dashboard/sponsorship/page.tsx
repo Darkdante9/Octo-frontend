@@ -47,7 +47,7 @@ export default function SponsorshipPage() {
     <DashboardShell user={user} title="Gas Sponsorship" onLogout={logout}>
       <div className="mx-auto max-w-5xl space-y-8">
         {/* How it works */}
-        <section className="rounded-2xl border border-white/10 bg-burgundy-soft/30 p-6">
+        <section className="rounded-2xl border border-border bg-burgundy-soft/30 p-6">
           <h2 className="text-base font-semibold text-foreground">How it works</h2>
           <p className="mt-2 max-w-3xl text-sm text-muted">
             Gas sponsorship lets your wallet pay the Stellar network fees on
@@ -91,7 +91,7 @@ function WalletCard({
   const enabled = config?.enabled ?? false;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-burgundy-soft/30 p-5">
+    <div className="rounded-2xl border border-border bg-burgundy-soft/30 p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-foreground">
@@ -103,7 +103,7 @@ function WalletCard({
           className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
             enabled
               ? "bg-burgundy/30 text-burgundy-bright"
-              : "bg-white/5 text-muted"
+              : "bg-hover text-muted"
           }`}
         >
           {enabled ? "Enabled" : "Disabled"}
@@ -141,7 +141,7 @@ function WalletCard({
 
 function EmptyState() {
   return (
-    <div className="rounded-2xl border border-dashed border-white/15 bg-burgundy-soft/30 p-10 text-center">
+    <div className="rounded-2xl border border-dashed border-border bg-burgundy-soft/30 p-10 text-center">
       <p className="text-sm font-medium text-foreground">No wallets yet</p>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted">
         Create a master wallet first, then enable gas sponsorship on it to

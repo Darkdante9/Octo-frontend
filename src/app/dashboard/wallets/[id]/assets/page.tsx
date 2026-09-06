@@ -87,7 +87,7 @@ export default function AssetsPage({
         />
 
         <div className="flex flex-1 flex-col">
-          <header className="flex items-center justify-between border-b border-white/10 px-8 py-4">
+          <header className="flex items-center justify-between border-b border-border px-8 py-4">
             <div className="flex items-center gap-2 text-sm text-muted">
               <Link href="/dashboard" className="hover:text-foreground">
                 My Wallets
@@ -138,7 +138,7 @@ export default function AssetsPage({
             </div>
 
             {error && (
-              <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+              <p className="rounded-lg border border-danger-border bg-danger-bg px-3 py-2 text-sm text-danger">
                 {error}
               </p>
             )}
@@ -164,14 +164,14 @@ export default function AssetsPage({
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-white/10 text-left text-[11px] uppercase tracking-wide text-muted">
+                      <tr className="border-b border-border text-left text-[11px] uppercase tracking-wide text-muted">
                         <th className="pb-3 pr-4 font-medium">Asset</th>
                         <th className="pb-3 pr-4 font-medium">Balance</th>
                         <th className="pb-3 pr-4 font-medium">Type</th>
                         <th className="pb-3 font-medium">Issuer</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className="divide-y divide-divider">
                       {balances.map((b, i) => (
                         <AssetRow key={i} balance={b} showUsd={showUsd} />
                       ))}

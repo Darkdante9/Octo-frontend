@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface DocLink {
   label: string;
@@ -45,7 +46,7 @@ const SECTIONS: { title: string; links: DocLink[] }[] = [
 export function DocsSidebar() {
   const pathname = usePathname();
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 overflow-y-auto border-r border-white/10 bg-black/40 px-4 py-6 lg:block">
+    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 overflow-y-auto border-r border-border bg-surface-sunken px-4 py-6 lg:block">
       <Link href="/" className="mb-8 block">
         <Logo />
       </Link>
@@ -65,7 +66,7 @@ export function DocsSidebar() {
                     className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition-colors ${
                       active
                         ? "bg-burgundy/25 text-foreground"
-                        : "text-muted hover:bg-white/5 hover:text-foreground"
+                        : "text-muted hover:bg-hover hover:text-foreground"
                     }`}
                   >
                     <span className="flex-1">{l.label}</span>
@@ -81,6 +82,11 @@ export function DocsSidebar() {
           </ul>
         </div>
       ))}
+
+      <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+        <span className="text-[11px] text-muted">Appearance</span>
+        <ThemeToggle />
+      </div>
     </aside>
   );
 }

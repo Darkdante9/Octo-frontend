@@ -58,7 +58,7 @@ function FeatureCard({
   log: string[];
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-burgundy-soft/50 to-black/40 p-7 transition-colors hover:border-burgundy/50">
+    <div className="group relative overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-burgundy-soft/50 to-card-gradient-end p-7 transition-colors hover:border-burgundy/50">
       <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-burgundy/20 blur-3xl transition-opacity group-hover:opacity-80" />
       <h3 className="font-display whitespace-pre-line text-2xl text-foreground">
         {title}
@@ -73,7 +73,7 @@ function FeatureCard({
       </a>
 
       {/* mini activity-log preview */}
-      <div className="mt-7 rounded-xl border border-white/10 bg-black/40 p-4">
+      <div className="mt-7 rounded-xl border border-border bg-surface-sunken p-4">
         <p className="text-[11px] uppercase tracking-wide text-muted">
           Activity Log
         </p>

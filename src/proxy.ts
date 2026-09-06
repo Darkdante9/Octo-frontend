@@ -30,6 +30,14 @@ function apiOrigin(): string {
 const CLOUDINARY_UPLOAD = "https://api.cloudinary.com";
 const CLOUDINARY_CDN = "https://res.cloudinary.com";
 
+// SHA-256 of THEME_INIT_SCRIPT in src/lib/theme.ts — the blocking inline script that sets
+// data-theme before first paint. It can't use the nonce: reading the nonce in the root layout
+// would force every route dynamic and defeat the static prerendering below. Only the strict
+// branch needs this; the static branch's 'unsafe-inline' already covers it, and adding a hash
+// there would make CSP ignore 'unsafe-inline' and block Next's own inline hydration scripts.
+// src/lib/theme.test.ts recomputes this and fails if the script and hash drift apart.
+const THEME_SCRIPT_HASH = "'sha256-b0IjdpRDazTe7ymepRk7Xjq0NgKhw2H6Gs56SknLntg='";
+
 export function proxy(request: NextRequest) {
   const isDev = process.env.NODE_ENV === "development";
   const connect = `connect-src 'self' ${apiOrigin()} ${CLOUDINARY_UPLOAD}${isDev ? " ws: http://localhost:*" : ""}`;
@@ -56,7 +64,7 @@ export function proxy(request: NextRequest) {
       `default-src 'self'`,
       // nonce + 'strict-dynamic': only scripts we emit (carrying this nonce) run; they may load
       // their own chunks. 'unsafe-eval' is dev-only (React uses eval for dev error stacks).
-      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
+      `script-src 'self' 'nonce-${nonce}' ${THEME_SCRIPT_HASH} 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ""}`,
       // Inline styles can't exfiltrate secrets the way scripts can — a limited, deliberate relax.
       `style-src 'self' 'unsafe-inline'`,
       img,

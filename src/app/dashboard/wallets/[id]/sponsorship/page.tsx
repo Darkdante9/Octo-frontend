@@ -116,7 +116,7 @@ export default function SponsorshipSettingsPage({
         <WalletSidebar walletId={id} walletName={wallet?.label ?? "Master wallet"} />
 
         <div className="flex flex-1 flex-col">
-          <header className="flex items-center justify-between border-b border-white/10 px-8 py-4">
+          <header className="flex items-center justify-between border-b border-border px-8 py-4">
             <div className="flex items-center gap-2 text-sm text-muted">
               <Link href="/dashboard" className="hover:text-foreground">
                 My Wallets
@@ -142,7 +142,7 @@ export default function SponsorshipSettingsPage({
               </div>
 
               {/* Today's spend */}
-              <section className="rounded-2xl border border-white/10 bg-burgundy-soft/30 p-5">
+              <section className="rounded-2xl border border-border bg-burgundy-soft/30 p-5">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted">Today&apos;s spend</span>
                   <span className="text-foreground">
@@ -150,7 +150,7 @@ export default function SponsorshipSettingsPage({
                     {stroopsToAmount(budgetStroops)} XLM daily budget
                   </span>
                 </div>
-                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-hover">
                   <div
                     className="h-full rounded-full bg-burgundy-bright"
                     style={{ width: `${pct}%` }}
@@ -162,7 +162,7 @@ export default function SponsorshipSettingsPage({
               </section>
 
               {/* Settings form */}
-              <section className="space-y-5 rounded-2xl border border-white/10 bg-burgundy-soft/30 p-5">
+              <section className="space-y-5 rounded-2xl border border-border bg-burgundy-soft/30 p-5">
                 {/* toggle */}
                 <div className="flex items-center justify-between">
                   <div>
@@ -180,7 +180,7 @@ export default function SponsorshipSettingsPage({
                     aria-label="Enable gas sponsorship"
                     onClick={() => setEnabled((v) => !v)}
                     className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-                      enabled ? "bg-burgundy-bright" : "bg-white/15"
+                      enabled ? "bg-burgundy-bright" : "bg-track"
                     }`}
                   >
                     <span
@@ -205,7 +205,7 @@ export default function SponsorshipSettingsPage({
                     onChange={(e) => setMaxFee(e.target.value)}
                     inputMode="decimal"
                     placeholder="0.0000000"
-                    className="mt-1.5 w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-foreground placeholder:text-muted/50 focus:border-burgundy-bright focus:outline-none"
+                    className="mt-1.5 w-full rounded-lg border border-border bg-surface-sunken px-3 py-2 text-sm text-foreground placeholder:text-muted/50 focus:border-burgundy-bright focus:outline-none"
                   />
                   <p className="mt-1 text-xs text-muted">
                     Maximum fee the master wallet will pay per sponsored
@@ -227,7 +227,7 @@ export default function SponsorshipSettingsPage({
                     onChange={(e) => setDailyBudget(e.target.value)}
                     inputMode="decimal"
                     placeholder="0.0000000"
-                    className="mt-1.5 w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-foreground placeholder:text-muted/50 focus:border-burgundy-bright focus:outline-none"
+                    className="mt-1.5 w-full rounded-lg border border-border bg-surface-sunken px-3 py-2 text-sm text-foreground placeholder:text-muted/50 focus:border-burgundy-bright focus:outline-none"
                   />
                   <p className="mt-1 text-xs text-muted">
                     {stroopsToAmount(remaining)} XLM remaining of today&apos;s

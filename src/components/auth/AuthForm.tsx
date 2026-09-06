@@ -115,7 +115,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           Enter the 6-digit code we sent to <span className="text-foreground">{email}</span>
         </p>
 
-        <div className="my-7 h-px bg-white/10" />
+        <div className="my-7 h-px bg-border" />
 
         <form onSubmit={onVerify} className="space-y-5">
           <OtpInput value={code} onChange={setCode} disabled={loading} />
@@ -161,14 +161,14 @@ export function AuthForm({ mode }: { mode: Mode }) {
           : "Sign in to your Octo dashboard"}
       </p>
 
-      <div className="my-7 h-px bg-white/10" />
+      <div className="my-7 h-px bg-border" />
 
       <form onSubmit={onSubmit} className="space-y-5">
         <div>
           <label className="text-sm font-medium text-foreground">
             Email Address
           </label>
-          <div className="mt-2 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 focus-within:border-burgundy-bright">
+          <div className="mt-2 flex items-center gap-2 rounded-xl border border-border bg-surface-raised px-4 py-3 focus-within:border-burgundy-bright">
             <span className="text-muted">✉</span>
             <input
               type="email"
@@ -183,7 +183,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
         <div>
           <label className="text-sm font-medium text-foreground">Password</label>
-          <div className="mt-2 flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 focus-within:border-burgundy-bright">
+          <div className="mt-2 flex items-center gap-2 rounded-xl border border-border bg-surface-raised px-4 py-3 focus-within:border-burgundy-bright">
             <span className="text-muted"></span>
             <input
               type="password"
@@ -212,9 +212,9 @@ export function AuthForm({ mode }: { mode: Mode }) {
       </form>
 
       <div className="my-7 flex items-center gap-3">
-        <div className="h-px flex-1 bg-white/10" />
+        <div className="h-px flex-1 bg-border" />
         <span className="text-xs text-muted">OR</span>
-        <div className="h-px flex-1 bg-white/10" />
+        <div className="h-px flex-1 bg-border" />
       </div>
 
       <p className="text-center text-sm text-muted">
