@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/useAuth";
 import { updateUsername, type User } from "@/lib/auth";
@@ -10,22 +10,21 @@ import { PageSpinner } from "@/components/OctoSpinner";
 
 export default function SettingsPage() {
   const { user, token, loading, logout } = useAuth();
-  // Tracks the latest saved user so the sidebar/greeting on this page reflect a save
-  // immediately, without waiting for a fresh `me()` fetch on next navigation.
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [username, setUsername] = useState("");
+  // Set only once a save succeeds, so the sidebar/greeting reflect it immediately without
+  // waiting for a fresh `me()` fetch on next navigation.
+  const [savedUser, setSavedUser] = useState<User | null>(null);
+  // null until the user types; the field otherwise mirrors whatever username is current.
+  const [draft, setDraft] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      setCurrentUser(user);
-      setUsername(user.username ?? "");
-    }
-  }, [user]);
 
   if (loading || !user) {
     return <PageSpinner />;
   }
+
+  // Derived rather than copied into state on every `user` change — copying props into state
+  // makes the effect fight the fetch, and leaves the field stale for a render after each save.
+  const currentUser = savedUser ?? user;
+  const username = draft ?? currentUser.username ?? "";
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +32,9 @@ export default function SettingsPage() {
     setSubmitting(true);
     try {
       const updated = await updateUsername(token, username.trim());
-      setCurrentUser(updated);
+      setSavedUser(updated);
+      // Drop the draft so the field falls back to the saved value.
+      setDraft(null);
       toast.success("Username saved.");
     } catch (err) {
       toast.error(
@@ -45,7 +46,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <DashboardShell user={currentUser ?? user} title="Settings" onLogout={logout}>
+    <DashboardShell user={currentUser} title="Settings" onLogout={logout}>
       <div className="mx-auto max-w-2xl">
         <h2 className="text-2xl font-semibold text-foreground">Profile</h2>
         <p className="mt-1 text-sm text-muted">
@@ -65,7 +66,7 @@ export default function SettingsPage() {
             </p>
             <input
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setDraft(e.target.value)}
               placeholder="e.g. tosin"
               maxLength={20}
               className="mt-2 w-full rounded-xl border border-border bg-surface-raised px-4 py-3 text-sm text-foreground placeholder:text-muted/60 focus:border-burgundy-bright focus:outline-none"

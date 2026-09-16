@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getToken, clearToken, me, type User } from "./auth";
 import { clearLocalBackups } from "./sdk";
@@ -15,9 +15,11 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const startedAt = useRef(Date.now());
 
   useEffect(() => {
+    // Timed from when the request actually starts, not from first render — reading the clock
+    // during render is impure and re-evaluates on every re-render.
+    const startedAt = Date.now();
     const t = getToken();
     if (!t) {
       router.replace("/login");
@@ -33,7 +35,7 @@ export function useAuth() {
         router.replace("/login");
       })
       .finally(() => {
-        const elapsed = Date.now() - startedAt.current;
+        const elapsed = Date.now() - startedAt;
         const remaining = MIN_LOADING_MS - elapsed;
         if (remaining > 0) {
           setTimeout(() => setLoading(false), remaining);

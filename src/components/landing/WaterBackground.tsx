@@ -14,7 +14,7 @@ import {
  * Sits beneath all content as a static underwater background.
  *
  * Colours come from the `--canvas-*` theme tokens rather than constants, and are re-read on a
- * theme change — the draw calls dereference the palette every frame, so the scene retheme s
+ * theme change — the draw calls dereference the palette every frame, so the scene rethemes
  * mid-flight without remounting or resetting any octopus position.
  */
 
