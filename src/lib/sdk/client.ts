@@ -15,6 +15,11 @@ export interface SdkClientOptions {
   token: AuthToken;
 }
 
+// Encode a dynamic path segment so crafted values can't alter the request path.
+function encodeSegment(value: string): string {
+  return encodeURIComponent(value);
+}
+
 export class SdkClient {
   private readonly baseUrl: string;
   private readonly token: AuthToken;
@@ -32,7 +37,7 @@ export class SdkClient {
   }
 
   async getWallet(token: AuthToken, walletId: WalletId): Promise<unknown> {
-    const res = await fetch(`${this.baseUrl}/wallets/${walletId}`, {
+    const res = await fetch(`${this.baseUrl}/wallets/${encodeSegment(walletId)}`, {
       method: 'GET',
       headers: { ...this.headers(), Authorization: `Bearer ${token}` },
     });
@@ -41,7 +46,7 @@ export class SdkClient {
   }
 
   async getSponsorship(token: AuthToken, walletId: WalletId): Promise<unknown> {
-    const res = await fetch(`${this.baseUrl}/wallets/${walletId}/sponsorship`, {
+    const res = await fetch(`${this.baseUrl}/wallets/${encodeSegment(walletId)}/sponsorship`, {
       method: 'GET',
       headers: { ...this.headers(), Authorization: `Bearer ${token}` },
     });
@@ -54,7 +59,7 @@ export class SdkClient {
     walletId: WalletId,
     payload: Record<string, unknown>,
   ): Promise<unknown> {
-    const res = await fetch(`${this.baseUrl}/wallets/${walletId}/sponsorship`, {
+    const res = await fetch(`${this.baseUrl}/wallets/${encodeSegment(walletId)}/sponsorship`, {
       method: 'PUT',
       headers: { ...this.headers(), Authorization: `Bearer ${token}` },
       body: JSON.stringify(payload),
