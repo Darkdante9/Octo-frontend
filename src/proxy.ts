@@ -118,6 +118,8 @@ export function proxy(request: NextRequest) {
   } else {
     // Static-friendly CSP: no nonce (so prerendered scripts still run), but still no third-party
     // script origins. These routes never touch a private key.
+    // The theme-script hash is deliberately omitted here: a hash makes browsers ignore
+    // 'unsafe-inline', which would block Next's own inline hydration scripts on prerendered pages.
     csp = [
       `default-src 'self'`,
       `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,

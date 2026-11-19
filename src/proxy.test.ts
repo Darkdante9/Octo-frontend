@@ -27,6 +27,7 @@ describe('proxy CSP reporting configuration', () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...ORIGINAL_ENV };
+    delete process.env.CSP_REPORT_ENDPOINT;
     delete process.env.CSP_REPORT_URI;
     delete process.env.CSP_REPORT_TO;
     delete process.env.NEXT_PUBLIC_CSP_REPORT_URI;
@@ -39,7 +40,7 @@ describe('proxy CSP reporting configuration', () => {
   });
 
   it('includes report-uri and Reporting-Endpoints when the documented variable is a valid URL', async () => {
-    process.env.CSP_REPORT_URI = 'https://reports.example.com/csp';
+    process.env.CSP_REPORT_ENDPOINT = 'https://reports.example.com/csp';
 
     const res = await proxy(makeRequest());
     const csp = getCsp(res);
@@ -63,7 +64,7 @@ describe('proxy CSP reporting configuration', () => {
   });
 
   it('omits reporting directives when the variable is empty', async () => {
-    process.env.CSP_REPORT_URI = '';
+    process.env.CSP_REPORT_ENDPOINT = '';
 
     const res = await proxy(makeRequest());
     const csp = getCsp(res);
@@ -73,8 +74,19 @@ describe('proxy CSP reporting configuration', () => {
     expect(res.headers.get('reporting-endpoints')).toBeNull();
   });
 
-  it('omits reporting directives when the variable is not a valid URL', async () => {
-    process.env.CSP_REPORT_URI = 'not-a-url';
+  it('omits reporting directives when the variable is whitespace-only', async () => {
+    process.env.CSP_REPORT_ENDPOINT = '   ';
+
+    const res = await proxy(makeRequest());
+    const csp = getCsp(res);
+
+    expect(getDirective(csp, 'report-uri')).toBeNull();
+    expect(getDirective(csp, 'report-to')).toBeNull();
+    expect(res.headers.get('reporting-endpoints')).toBeNull();
+  });
+
+  it('omits reporting directives when the variable is a relative URL', async () => {
+    process.env.CSP_REPORT_ENDPOINT = '/csp-report';
 
     const res = await proxy(makeRequest());
     const csp = getCsp(res);
@@ -85,7 +97,7 @@ describe('proxy CSP reporting configuration', () => {
   });
 
   it('omits reporting directives for non-http(s) URLs', async () => {
-    process.env.CSP_REPORT_URI = 'javascript:alert(1)';
+    process.env.CSP_REPORT_ENDPOINT = 'ftp://reports.example.com/csp';
 
     const res = await proxy(makeRequest());
     const csp = getCsp(res);
@@ -100,6 +112,7 @@ describe('proxy HSTS policy per environment', () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...ORIGINAL_ENV };
+    delete process.env.CSP_REPORT_ENDPOINT;
     delete process.env.VERCEL_ENV;
     delete (process.env as Record<string, string | undefined>).NODE_ENV;
   });
@@ -156,6 +169,7 @@ describe('proxy inline theme script allowance', () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...ORIGINAL_ENV };
+    delete process.env.CSP_REPORT_ENDPOINT;
     delete process.env.VERCEL_ENV;
     delete (process.env as Record<string, string | undefined>).NODE_ENV;
   });
@@ -164,8 +178,8 @@ describe('proxy inline theme script allowance', () => {
     process.env = { ...ORIGINAL_ENV };
   });
 
-  it('allows the inline theme script via a hash and not a nonce', async () => {
-    const res = await proxy(makeRequest());
+  it('allows the inline theme script via a hash and not a nonce on strict routes', async () => {
+    const res = await proxy(makeRequest('https://octo.example.com/dashboard'));
     const csp = getCsp(res);
 
     const scriptSrc = getDirective(csp, 'script-src');
@@ -173,6 +187,18 @@ describe('proxy inline theme script allowance', () => {
 
     expect(scriptSrc).toContain("'sha256-");
     expect(scriptSrc).not.toContain("'nonce-");
+  });
+
+  it('keeps unsafe-inline without the hash on static routes', async () => {
+    // Static routes keep 'unsafe-inline' without the hash so Next's inline hydration scripts are not blocked.
+    const res = await proxy(makeRequest('https://octo.example.com/'));
+    const csp = getCsp(res);
+
+    const scriptSrc = getDirective(csp, 'script-src');
+    expect(scriptSrc).not.toBeNull();
+
+    expect(scriptSrc).toContain("'unsafe-inline'");
+    expect(scriptSrc).not.toContain("'sha256-");
   });
 
   it('does not emit a nonce-based allowance on the response', async () => {
@@ -187,6 +213,7 @@ describe('proxy CSP route classification', () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...ORIGINAL_ENV };
+    delete process.env.CSP_REPORT_ENDPOINT;
     delete process.env.CSP_REPORT_URI;
     delete process.env.CSP_REPORT_TO;
     delete process.env.NEXT_PUBLIC_CSP_REPORT_URI;

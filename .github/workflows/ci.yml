@@ -2,8 +2,17 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
+
+# Cancel superseded runs on the same ref so a stack of pushes doesn't queue redundant CI.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Least-privilege token: CI only reads the code and uploads an artifact.
+permissions:
+  contents: read
 
 jobs:
   # The `check` job is the required status check for `dev` and `main` branch protection.
@@ -12,7 +21,11 @@ jobs:
     name: typecheck · lint · test · build
     runs-on: ubuntu-latest
     steps:
+      # Action pins are kept fresh by Dependabot (see .github/dependabot.yml).
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # Don't leave the token in .git/config for later steps.
+          persist-credentials: false
 
       # pnpm before setup-node, so setup-node's pnpm cache resolver can find the binary.
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
