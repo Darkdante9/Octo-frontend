@@ -1,5 +1,7 @@
 # Octo — Frontend
 
+[![CI](https://github.com/Octo-Protocol-org/octo-frontend/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/Octo-Protocol-org/octo-frontend/actions/workflows/ci.yml?query=branch%3Adev)
+
 The Next.js dashboard for **Octo**, a Stellar-native Wallet-as-a-Service. It is a pure client of
 the Octo backend API (the Rust `octo-server`), which lives in a separate repo:
 **[Octo-Protocol](https://github.com/Octo-Protocol-org/Octo-Protocol)**.
@@ -62,10 +64,15 @@ All pull requests targeting `dev` and `main` must satisfy the following before t
 - **Passing CI run.** The [`CI`](.github/workflows/ci.yml) workflow (job `check`) must complete
   successfully on the PR's head commit.
 - **At least one approving review.** A maintainer must approve the PR.
+- **Up to date with the base branch.** Branch protection on `dev` must enable
+  **"Require branches to be up to date before merging"** in addition to requiring the `check` job.
+  Without it, two PRs that each pass CI on their own can still break `dev` when merged together
+  (this is how the payment-links page broke `dev`). With it, GitHub re-runs CI against the merged
+  result before the merge is allowed.
 
 These requirements are enforced by branch protection rules / rulesets, which maintainers configure
 in the GitHub repository settings (Settings → Branches / Rulesets). Do not merge a PR that has not
-met both conditions.
+met all of these conditions.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
