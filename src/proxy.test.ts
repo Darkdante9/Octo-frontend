@@ -114,6 +114,7 @@ describe('proxy HSTS policy per environment', () => {
     process.env = { ...ORIGINAL_ENV };
     delete process.env.CSP_REPORT_ENDPOINT;
     delete process.env.VERCEL_ENV;
+    delete process.env.OCTO_DEPLOY_ENV;
     delete (process.env as Record<string, string | undefined>).NODE_ENV;
   });
 
@@ -140,6 +141,7 @@ describe('proxy HSTS policy per environment', () => {
     const hsts = res.headers.get('strict-transport-security');
 
     expect(hsts).not.toBeNull();
+    expect(hsts).toContain('max-age=300');
     expect(hsts).not.toContain('preload');
     expect(hsts).not.toContain('includeSubDomains');
   });
@@ -151,6 +153,7 @@ describe('proxy HSTS policy per environment', () => {
     const hsts = res.headers.get('strict-transport-security');
 
     expect(hsts).not.toBeNull();
+    expect(hsts).toContain('max-age=300');
     expect(hsts).not.toContain('preload');
     expect(hsts).not.toContain('includeSubDomains');
   });
@@ -162,6 +165,19 @@ describe('proxy HSTS policy per environment', () => {
     const hsts = res.headers.get('strict-transport-security');
 
     expect(hsts).toBeNull();
+  });
+
+  it('falls back to the short HSTS policy for an unknown environment in a production build', async () => {
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
+    process.env.VERCEL_ENV = 'some-unknown-env';
+
+    const res = await proxy(makeRequest());
+    const hsts = res.headers.get('strict-transport-security');
+
+    expect(hsts).not.toBeNull();
+    expect(hsts).toContain('max-age=300');
+    expect(hsts).not.toContain('preload');
+    expect(hsts).not.toContain('includeSubDomains');
   });
 });
 
