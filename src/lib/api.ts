@@ -211,3 +211,119 @@ export async function revokeSession(token: string, id: string): Promise<void> {
 export async function revokeOtherSessions(token: string): Promise<void> {
   await apiFetch<unknown>(path`/sessions`, { method: "DELETE", token });
 }
+
+/** A registered webhook endpoint. The signing secret is never included here. */
+export type WebhookEndpoint = {
+  id: string;
+  url: string;
+  createdAt: string;
+  updatedAt?: string;
+  active?: boolean;
+  description?: string;
+};
+
+/** A single webhook delivery attempt, as returned by the backend when available. */
+export type WebhookDelivery = {
+  id: string;
+  endpointId?: string;
+  event?: string;
+  status?: string;
+  statusCode?: number;
+  attempts?: number;
+  error?: string;
+  createdAt: string;
+  deliveredAt?: string;
+};
+
+/** Normalise list responses that may be a bare array or wrapped in an object. */
+function asList<T>(data: T[] | Record<string, T[]>, key: string): T[] {
+  if (Array.isArray(data)) return data;
+  const value = (data as Record<string, T[]>)[key];
+  return Array.isArray(value) ? value : [];
+}
+
+/** List the webhook endpoints registered for a wallet. */
+export async function listWebhooks(
+  token: string,
+  walletId: string,
+): Promise<WebhookEndpoint[]> {
+  const data = await apiFetch<WebhookEndpoint[] | { webhooks: WebhookEndpoint[] }>(
+    path`/v1/wallets/${walletId}/webhooks`,
+    { token },
+  );
+  return asList(data, "webhooks");
+}
+
+/**
+ * Register a new webhook endpoint.
+ *
+ * The response carries the signing secret, which the backend only ever returns once.
+ */
+export async function createWebhook(
+  token: string,
+  walletId: string,
+  url: string,
+): Promise<{ webhook: WebhookEndpoint; secret: string }> {
+  const data = await apiFetch<{
+    webhook?: WebhookEndpoint;
+    endpoint?: WebhookEndpoint;
+    secret: string;
+  }>(path`/v1/wallets/${walletId}/webhooks`, {
+    method: "POST",
+    token,
+    body: JSON.stringify({ url }),
+  });
+  const webhook = data.webhook ?? data.endpoint;
+  if (!webhook) {
+    throw new ApiError("Unexpected response from server (missing webhook).", 0);
+  }
+  return { webhook, secret: data.secret };
+}
+
+/** Rotate an endpoint's signing secret; the previous secret stops working immediately. */
+export async function rotateWebhookSecret(
+  token: string,
+  walletId: string,
+  webhookId: string,
+): Promise<{ secret: string }> {
+  const data = await apiFetch<{ secret: string }>(
+    path`/v1/wallets/${walletId}/webhooks/${webhookId}/rotate`,
+    { method: "POST", token },
+  );
+  return { secret: data.secret };
+}
+
+/** Delete a webhook endpoint; the backend stops delivering to it. */
+export async function deleteWebhook(
+  token: string,
+  walletId: string,
+  webhookId: string,
+): Promise<void> {
+  await apiFetch<unknown>(path`/v1/wallets/${walletId}/webhooks/${webhookId}`, {
+    method: "DELETE",
+    token,
+  });
+}
+
+/**
+ * Fetch recent delivery attempts for a wallet's webhooks.
+ *
+ * Returns an empty list when the backend does not expose deliveries (404/501) so the
+ * dashboard can degrade gracefully instead of showing an error.
+ */
+export async function listWebhookDeliveries(
+  token: string,
+  walletId: string,
+): Promise<WebhookDelivery[]> {
+  try {
+    const data = await apiFetch<
+      WebhookDelivery[] | { deliveries: WebhookDelivery[] }
+    >(path`/v1/wallets/${walletId}/webhooks/deliveries`, { token });
+    return asList(data, "deliveries");
+  } catch (err) {
+    if (err instanceof ApiError && (err.status === 404 || err.status === 501)) {
+      return [];
+    }
+    throw err;
+  }
+}

@@ -35,19 +35,60 @@ function slip10HardenedChild(
   return { key: I.slice(0, 32), chainCode: I.slice(32) };
 }
 
+/** Maximum non-hardened index allowed by SLIP-0010 (2^31 - 1). */
+const MAX_HARDENED_INDEX = 0x7fffffff;
+
+/**
+ * Parse and validate a hardened SLIP-0010 ed25519 derivation path.
+ * Requires the "m" prefix, at least one segment, and every segment to be a
+ * hardened index in 0..2^31-1 (e.g. "m/44'/148'/0'"). Throws on invalid input.
+ */
+export function parseSlip10Path(path: string): number[] {
+  if (typeof path !== "string" || path.length === 0) {
+    throw new Error("Derivation path must be a non-empty string.");
+  }
+  if (path !== path.trim()) {
+    throw new Error(`Derivation path must not have surrounding whitespace: "${path}"`);
+  }
+  if (path !== "m" && !path.startsWith("m/")) {
+    throw new Error(`Derivation path must start with "m": "${path}"`);
+  }
+  if (path === "m") {
+    throw new Error("Derivation path must contain at least one segment.");
+  }
+  const rawSegments = path.slice(2).split("/");
+  const indices: number[] = [];
+  for (const seg of rawSegments) {
+    if (seg.length === 0) {
+      throw new Error(`Derivation path has an empty segment: "${path}"`);
+    }
+    if (!seg.endsWith("'")) {
+      throw new Error(`SLIP-0010 ed25519 requires hardened path: ${seg}`);
+    }
+    const digits = seg.slice(0, -1);
+    if (!/^(0|[1-9][0-9]*)$/.test(digits)) {
+      throw new Error(`Derivation path segment is not a valid index: ${seg}`);
+    }
+    const value = Number(digits);
+    if (!Number.isSafeInteger(value) || value > MAX_HARDENED_INDEX) {
+      throw new Error(`Derivation path index out of range (0..${MAX_HARDENED_INDEX}): ${seg}`);
+    }
+    indices.push((value | 0x80000000) >>> 0);
+  }
+  return indices;
+}
+
 /**
  * Derive a key from a BIP-39 seed using SLIP-0010 ed25519.
  * Path segments must be hardened (e.g. "m/44'/148'/0'").
  */
 function deriveSlip10(seed: Uint8Array, path: string): Uint8Array {
-  const segments = path
-    .replace(/^m\/?/, "")
-    .split("/")
-    .filter(Boolean);
+  if (!(seed instanceof Uint8Array) || seed.length === 0) {
+    throw new Error("Seed must be a non-empty Uint8Array.");
+  }
+  const indices = parseSlip10Path(path);
   let node = slip10Master(seed);
-  for (const seg of segments) {
-    if (!seg.endsWith("'")) throw new Error(`SLIP-0010 ed25519 requires hardened path: ${seg}`);
-    const index = (parseInt(seg, 10) | 0x80000000) >>> 0;
+  for (const index of indices) {
     node = slip10HardenedChild(node, index);
   }
   return node.key;
@@ -90,5 +131,8 @@ export function fromMnemonic(mnemonic: string): WalletKeys {
 
 /** Derive a Keypair from the raw 32-byte ed25519 seed (used after decrypting a backup). */
 export function keypairFromRawSeed(rawSeed: Uint8Array): Keypair {
+  if (!(rawSeed instanceof Uint8Array) || rawSeed.length !== 32) {
+    throw new Error("Raw ed25519 seed must be a 32-byte Uint8Array.");
+  }
   return Keypair.fromRawEd25519Seed(Buffer.from(rawSeed));
 }

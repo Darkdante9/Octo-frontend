@@ -9,6 +9,10 @@ function makeRequest(url = 'https://octo.example.com/', headers: Record<string, 
   return new NextRequest(url, { headers });
 }
 
+function getNonceHeader(res: Response): string | null {
+  return res.headers.get('x-nonce');
+}
+
 function getCsp(res: Response): string {
   return res.headers.get('content-security-policy') ?? '';
 }
@@ -27,6 +31,7 @@ describe('proxy CSP reporting configuration', () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...ORIGINAL_ENV };
+    delete process.env.CSP_REPORT_ENDPOINT;
     delete process.env.CSP_REPORT_URI;
     delete process.env.CSP_REPORT_TO;
     delete process.env.NEXT_PUBLIC_CSP_REPORT_URI;
@@ -39,7 +44,7 @@ describe('proxy CSP reporting configuration', () => {
   });
 
   it('includes report-uri and Reporting-Endpoints when the documented variable is a valid URL', async () => {
-    process.env.CSP_REPORT_URI = 'https://reports.example.com/csp';
+    process.env.CSP_REPORT_ENDPOINT = 'https://reports.example.com/csp';
 
     const res = await proxy(makeRequest());
     const csp = getCsp(res);
@@ -63,7 +68,7 @@ describe('proxy CSP reporting configuration', () => {
   });
 
   it('omits reporting directives when the variable is empty', async () => {
-    process.env.CSP_REPORT_URI = '';
+    process.env.CSP_REPORT_ENDPOINT = '';
 
     const res = await proxy(makeRequest());
     const csp = getCsp(res);
@@ -74,7 +79,7 @@ describe('proxy CSP reporting configuration', () => {
   });
 
   it('omits reporting directives when the variable is not a valid URL', async () => {
-    process.env.CSP_REPORT_URI = 'not-a-url';
+    process.env.CSP_REPORT_ENDPOINT = 'not-a-url';
 
     const res = await proxy(makeRequest());
     const csp = getCsp(res);
@@ -85,7 +90,7 @@ describe('proxy CSP reporting configuration', () => {
   });
 
   it('omits reporting directives for non-http(s) URLs', async () => {
-    process.env.CSP_REPORT_URI = 'javascript:alert(1)';
+    process.env.CSP_REPORT_ENDPOINT = 'javascript:alert(1)';
 
     const res = await proxy(makeRequest());
     const csp = getCsp(res);
@@ -109,7 +114,7 @@ describe('proxy HSTS policy per environment', () => {
   });
 
   it('applies a strict HSTS policy in production', async () => {
-    process.env.VERCEL_ENV = 'production';
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
 
     const res = await proxy(makeRequest());
     const hsts = res.headers.get('strict-transport-security');
@@ -187,6 +192,7 @@ describe('proxy CSP route classification', () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...ORIGINAL_ENV };
+    delete process.env.CSP_REPORT_ENDPOINT;
     delete process.env.CSP_REPORT_URI;
     delete process.env.CSP_REPORT_TO;
     delete process.env.NEXT_PUBLIC_CSP_REPORT_URI;
@@ -257,5 +263,196 @@ describe('proxy CSP route classification', () => {
   it('applies the lighter CSP to privacy/terms pages (no nonce)', async () => {
     const res = await proxy(makeRequest('https://octo.example.com/privacy'));
     expect(isLight(getCsp(res))).toBe(true);
+  });
+});
+
+describe('proxy defense-in-depth headers', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    process.env = { ...ORIGINAL_ENV };
+    delete process.env.CSP_REPORT_ENDPOINT;
+    delete process.env.CSP_REPORT_URI;
+    delete process.env.CSP_REPORT_TO;
+    delete process.env.NEXT_PUBLIC_CSP_REPORT_URI;
+    delete process.env.VERCEL_ENV;
+    delete (process.env as Record<string, string | undefined>).NODE_ENV;
+  });
+
+  afterEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+  });
+
+  const ROUTES = [
+    { name: 'marketing home', url: 'https://octo.example.com/' },
+    { name: 'docs', url: 'https://octo.example.com/docs/api/reads' },
+    { name: 'auth login', url: 'https://octo.example.com/login' },
+    { name: 'auth signup', url: 'https://octo.example.com/signup' },
+    {
+      name: 'auth forgot-password',
+      url: 'https://octo.example.com/forgot-password',
+    },
+    {
+      name: 'dashboard',
+      url: 'https://octo.example.com/dashboard/wallets/1',
+    },
+    { name: 'checkout', url: 'https://octo.example.com/pay/abc' },
+  ];
+
+  for (const route of ROUTES) {
+    it(`sets the full defense-in-depth header set on ${route.name}`, async () => {
+      const res = await proxy(makeRequest(route.url));
+
+      expect(res.headers.get('x-content-type-options')).toBe('nosniff');
+      expect(res.headers.get('x-frame-options')).toBe('DENY');
+      expect(res.headers.get('referrer-policy')).toBe(
+        'strict-origin-when-cross-origin',
+      );
+      expect(res.headers.get('cross-origin-opener-policy')).toBe('same-origin');
+      expect(res.headers.get('cross-origin-resource-policy')).toBe('same-origin');
+      expect(res.headers.get('permissions-policy')).not.toBeNull();
+      expect(res.headers.get('permissions-policy')).toContain('camera=()');
+      expect(res.headers.get('permissions-policy')).toContain('microphone=()');
+      expect(res.headers.get('permissions-policy')).toContain('geolocation=()');
+    });
+  }
+});
+
+describe('proxy CSP directive shape per route class', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    process.env = { ...ORIGINAL_ENV };
+    delete process.env.CSP_REPORT_ENDPOINT;
+    delete process.env.CSP_REPORT_URI;
+    delete process.env.CSP_REPORT_TO;
+    delete process.env.NEXT_PUBLIC_CSP_REPORT_URI;
+    delete process.env.VERCEL_ENV;
+    delete (process.env as Record<string, string | undefined>).NODE_ENV;
+  });
+
+  afterEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+  });
+
+  const STRICT_ROUTES = [
+    { name: 'auth login', url: 'https://octo.example.com/login' },
+    { name: 'auth signup', url: 'https://octo.example.com/signup' },
+    {
+      name: 'auth forgot-password',
+      url: 'https://octo.example.com/forgot-password',
+    },
+    {
+      name: 'dashboard',
+      url: 'https://octo.example.com/dashboard/wallets/1',
+    },
+    { name: 'checkout', url: 'https://octo.example.com/pay/abc' },
+  ];
+
+  const LIGHT_ROUTES = [
+    { name: 'marketing home', url: 'https://octo.example.com/' },
+    { name: 'docs', url: 'https://octo.example.com/docs/api/reads' },
+    { name: 'privacy', url: 'https://octo.example.com/privacy' },
+  ];
+
+  for (const route of [...STRICT_ROUTES, ...LIGHT_ROUTES]) {
+    it(`emits the expected CSP directives on ${route.name}`, async () => {
+      const res = await proxy(makeRequest(route.url));
+      const csp = getCsp(res);
+
+      expect(getDirective(csp, 'default-src')).toBe("default-src 'self'");
+      expect(getDirective(csp, 'object-src')).toBe("object-src 'none'");
+      expect(getDirective(csp, 'base-uri')).toBe("base-uri 'self'");
+      expect(getDirective(csp, 'frame-ancestors')).toBe(
+        "frame-ancestors 'none'",
+      );
+      expect(getDirective(csp, 'upgrade-insecure-requests')).toBe(
+        'upgrade-insecure-requests',
+      );
+
+      const styleSrc = getDirective(csp, 'style-src');
+      expect(styleSrc).not.toBeNull();
+      expect(styleSrc).toContain("'self'");
+
+      const imgSrc = getDirective(csp, 'img-src');
+      expect(imgSrc).not.toBeNull();
+      expect(imgSrc).toContain("'self'");
+
+      const fontSrc = getDirective(csp, 'font-src');
+      expect(fontSrc).not.toBeNull();
+      expect(fontSrc).toContain("'self'");
+
+      const connectSrc = getDirective(csp, 'connect-src');
+      expect(connectSrc).not.toBeNull();
+      expect(connectSrc).toContain("'self'");
+
+      const formAction = getDirective(csp, 'form-action');
+      expect(formAction).not.toBeNull();
+      expect(formAction).toContain("'self'");
+    });
+  }
+
+  for (const route of STRICT_ROUTES) {
+    it(`uses a nonce-based script-src and sets x-nonce on ${route.name}`, async () => {
+      const res = await proxy(makeRequest(route.url));
+      const csp = getCsp(res);
+      const scriptSrc = getDirective(csp, 'script-src');
+
+      expect(scriptSrc).not.toBeNull();
+      expect(scriptSrc).toContain("'nonce-");
+      expect(scriptSrc).toContain("'strict-dynamic'");
+      expect(scriptSrc).not.toContain("'unsafe-inline'");
+
+      const nonce = getNonceHeader(res);
+      expect(nonce).not.toBeNull();
+      expect(nonce).not.toBe('');
+      expect(scriptSrc).toContain(`'nonce-${nonce}'`);
+    });
+  }
+
+  for (const route of LIGHT_ROUTES) {
+    it(`uses an inline-friendly script-src and no x-nonce on ${route.name}`, async () => {
+      const res = await proxy(makeRequest(route.url));
+      const csp = getCsp(res);
+      const scriptSrc = getDirective(csp, 'script-src');
+
+      expect(scriptSrc).not.toBeNull();
+      expect(scriptSrc).toContain("'unsafe-inline'");
+      expect(scriptSrc).not.toContain("'nonce-");
+      expect(getNonceHeader(res)).toBeNull();
+    });
+  }
+});
+
+describe('proxy CSP connect-src hosts', () => {
+  beforeEach(() => {
+    vi.resetModules();
+    process.env = { ...ORIGINAL_ENV };
+    delete process.env.CSP_REPORT_ENDPOINT;
+    delete process.env.CSP_REPORT_URI;
+    delete process.env.CSP_REPORT_TO;
+    delete process.env.NEXT_PUBLIC_CSP_REPORT_URI;
+    delete process.env.VERCEL_ENV;
+    delete (process.env as Record<string, string | undefined>).NODE_ENV;
+  });
+
+  afterEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+  });
+
+  it('includes the configured API origin in connect-src', async () => {
+    process.env.NEXT_PUBLIC_API_URL = 'https://api.octo.example.com';
+
+    const res = await proxy(makeRequest('https://octo.example.com/'));
+    const connectSrc = getDirective(getCsp(res), 'connect-src');
+
+    expect(connectSrc).not.toBeNull();
+    expect(connectSrc).toContain('https://api.octo.example.com');
+  });
+
+  it('includes Cloudinary hosts in connect-src', async () => {
+    const res = await proxy(makeRequest('https://octo.example.com/'));
+    const connectSrc = getDirective(getCsp(res), 'connect-src');
+
+    expect(connectSrc).not.toBeNull();
+    expect(connectSrc).toContain('cloudinary.com');
   });
 });

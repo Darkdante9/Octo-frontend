@@ -55,6 +55,16 @@ export default function ApiOverview() {
         </li>
       </ul>
 
+      <h2>Webhooks</h2>
+      <p>
+        Register webhook endpoints with{" "}
+        <code>POST /v1/wallets/:id/webhooks</code> and keep the signing secret
+        that is shown once. You can also manage endpoints — list, add, rotate
+        the secret, and delete — from the dashboard{" "}
+        <Link href="/dashboard">Webhooks page</Link> for each wallet, without
+        using curl.
+      </p>
+
       <p>
         Next: <Link href="/docs/api/authentication">Authentication</Link>.
       </p>

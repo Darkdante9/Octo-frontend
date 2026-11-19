@@ -27,6 +27,7 @@ export function WalletSidebar({
     { label: "Transactions", href: `${base}/transactions`, icon: "◷" },
     { label: "Addresses", href: `${base}/addresses`, icon: "▢" },
     { label: "Payment Links", href: `${base}/payment-links`, icon: "⎘" },
+    { label: "Webhooks", href: `${base}/webhooks`, icon: "⇄" },
     { label: "Withdrawal allowlist", href: `${base}/whitelist`, icon: "⚇" },
     {
       label: "Sponsorship",

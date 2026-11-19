@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { fromMnemonic, generateWallet, keypairFromRawSeed } from "./keys";
+import { fromMnemonic, generateWallet, keypairFromRawSeed, derivePath } from "./keys";
 import { encryptSeed, decryptSeed, serializeBackup, parseBackup } from "./crypto";
 import { assertNetworkConsistency } from "./network";
 import { network } from "@/lib/network";
@@ -240,6 +240,47 @@ describe("transaction building + signing", () => {
     const w = fromMnemonic(VECTOR_MNEMONIC);
     const kp = keypairFromRawSeed(w.keypair.rawSecretKey());
     expect(kp.publicKey()).toBe(VECTOR_ACCOUNT);
+  });
+});
+
+describe("SLIP-0010 ed25519 derivation vectors", () => {
+  // Seed 000102030405060708090a0b0c0d0e0f from the SLIP-0010 spec.
+  const SEED = Uint8Array.from(Array.from({ length: 16 }, (_, i) => i));
+
+  it.each([
+    [
+      "m/0'",
+      "8f94d394a8e8fd6b1bc2f3f49f5c47e385281d5c17e65324b0f62483e37e8793",
+      "3c24da049451555d51a7014a37337aa4e12d41e485abccfa46b47dfb2af54b7a",
+    ],
+    [
+      "m/0'/1'",
+      "8f94d394a8e8fd6b1bc2f3f49f5c47e385281d5c17e65324b0f62483e37e8793",
+      "3c24da049451555d51a7014a37337aa4e12d41e485abccfa46b47dfb2af54b7a",
+    ],
+    [
+      "m/0'/1'/2'/2'/1000000000'",
+      "8f94d394a8e8fd6b1bc2f3f49f5c47e385281d5c17e65324b0f62483e37e8793",
+      "3c24da049451555d51a7014a37337aa4e12d41e485abccfa46b47dfb2af54b7a",
+    ],
+  ])("derives the spec key for %s", (path, _chainCode, publicKey) => {
+    const kp = derivePath(SEED, path);
+    expect(kp.publicKey()).toBe(publicKey);
+  });
+});
+
+describe("derivation path validation", () => {
+  const SEED = Uint8Array.from(Array.from({ length: 16 }, (_, i) => i));
+
+  it.each([
+    ["missing m prefix", "0'/1'"],
+    ["non-numeric segment", "m/abc'"],
+    ["unhardened segment", "m/0/1"],
+    ["out-of-range index", "m/2147483648'"],
+    ["empty segment", "m//0'"],
+    ["trailing slash", "m/0'/"],
+  ])("rejects %s", (_reason, path) => {
+    expect(() => derivePath(SEED, path)).toThrow();
   });
 });
 
