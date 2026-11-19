@@ -78,6 +78,17 @@ describe('proxy CSP reporting configuration', () => {
     expect(res.headers.get('reporting-endpoints')).toBeNull();
   });
 
+  it('omits reporting directives when the variable is whitespace-only', async () => {
+    process.env.CSP_REPORT_ENDPOINT = '   ';
+
+    const res = await proxy(makeRequest());
+    const csp = getCsp(res);
+
+    expect(getDirective(csp, 'report-uri')).toBeNull();
+    expect(getDirective(csp, 'report-to')).toBeNull();
+    expect(res.headers.get('reporting-endpoints')).toBeNull();
+  });
+
   it('omits reporting directives when the variable is not a valid URL', async () => {
     process.env.CSP_REPORT_ENDPOINT = 'not-a-url';
 
@@ -89,8 +100,20 @@ describe('proxy CSP reporting configuration', () => {
     expect(res.headers.get('reporting-endpoints')).toBeNull();
   });
 
+  it('omits reporting directives when the variable is a relative URL', async () => {
+    process.env.CSP_REPORT_ENDPOINT = '/csp-report';
+
+    const res = await proxy(makeRequest());
+    const csp = getCsp(res);
+
+    expect(getDirective(csp, 'report-uri')).toBeNull();
+    expect(getDirective(csp, 'report-to')).toBeNull();
+    expect(res.headers.get('reporting-endpoints')).toBeNull();
+  });
+
   it('omits reporting directives for non-http(s) URLs', async () => {
     process.env.CSP_REPORT_ENDPOINT = 'javascript:alert(1)';
+    process.env.CSP_REPORT_ENDPOINT = 'ftp://reports.example.com/csp';
 
     const res = await proxy(makeRequest());
     const csp = getCsp(res);
@@ -105,7 +128,9 @@ describe('proxy HSTS policy per environment', () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...ORIGINAL_ENV };
+    delete process.env.CSP_REPORT_ENDPOINT;
     delete process.env.VERCEL_ENV;
+    delete process.env.OCTO_DEPLOY_ENV;
     delete (process.env as Record<string, string | undefined>).NODE_ENV;
   });
 
@@ -132,6 +157,7 @@ describe('proxy HSTS policy per environment', () => {
     const hsts = res.headers.get('strict-transport-security');
 
     expect(hsts).not.toBeNull();
+    expect(hsts).toContain('max-age=300');
     expect(hsts).not.toContain('preload');
     expect(hsts).not.toContain('includeSubDomains');
   });
@@ -143,6 +169,7 @@ describe('proxy HSTS policy per environment', () => {
     const hsts = res.headers.get('strict-transport-security');
 
     expect(hsts).not.toBeNull();
+    expect(hsts).toContain('max-age=300');
     expect(hsts).not.toContain('preload');
     expect(hsts).not.toContain('includeSubDomains');
   });
@@ -155,12 +182,26 @@ describe('proxy HSTS policy per environment', () => {
 
     expect(hsts).toBeNull();
   });
+
+  it('falls back to the short HSTS policy for an unknown environment in a production build', async () => {
+    (process.env as Record<string, string | undefined>).NODE_ENV = 'production';
+    process.env.VERCEL_ENV = 'some-unknown-env';
+
+    const res = await proxy(makeRequest());
+    const hsts = res.headers.get('strict-transport-security');
+
+    expect(hsts).not.toBeNull();
+    expect(hsts).toContain('max-age=300');
+    expect(hsts).not.toContain('preload');
+    expect(hsts).not.toContain('includeSubDomains');
+  });
 });
 
 describe('proxy inline theme script allowance', () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...ORIGINAL_ENV };
+    delete process.env.CSP_REPORT_ENDPOINT;
     delete process.env.VERCEL_ENV;
     delete (process.env as Record<string, string | undefined>).NODE_ENV;
   });
@@ -169,8 +210,8 @@ describe('proxy inline theme script allowance', () => {
     process.env = { ...ORIGINAL_ENV };
   });
 
-  it('allows the inline theme script via a hash and not a nonce', async () => {
-    const res = await proxy(makeRequest());
+  it('allows the inline theme script via a hash and not a nonce on strict routes', async () => {
+    const res = await proxy(makeRequest('https://octo.example.com/dashboard'));
     const csp = getCsp(res);
 
     const scriptSrc = getDirective(csp, 'script-src');
@@ -178,6 +219,18 @@ describe('proxy inline theme script allowance', () => {
 
     expect(scriptSrc).toContain("'sha256-");
     expect(scriptSrc).not.toContain("'nonce-");
+  });
+
+  it('keeps unsafe-inline without the hash on static routes', async () => {
+    // Static routes keep 'unsafe-inline' without the hash so Next's inline hydration scripts are not blocked.
+    const res = await proxy(makeRequest('https://octo.example.com/'));
+    const csp = getCsp(res);
+
+    const scriptSrc = getDirective(csp, 'script-src');
+    expect(scriptSrc).not.toBeNull();
+
+    expect(scriptSrc).toContain("'unsafe-inline'");
+    expect(scriptSrc).not.toContain("'sha256-");
   });
 
   it('does not emit a nonce-based allowance on the response', async () => {

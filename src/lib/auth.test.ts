@@ -120,6 +120,43 @@ describe("#286 same-origin guard", () => {
   });
 });
 
+// ---------- #611 — verify2fa request contract ----------
+
+describe("#611 verify2fa()", () => {
+  beforeEach(() => {
+    const storage = makeLocalStorage();
+    vi.stubGlobal("localStorage", storage);
+    vi.stubGlobal("window", { localStorage: storage });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("POSTs the code to /auth/2fa/challenge with the challenge token as bearer", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ statusCode: 200, message: "ok", data: { token: "session-tok" } }),
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { verify2fa } = await import("./auth");
+    const result = await verify2fa("challenge-abc", "123456");
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toMatch(/\/auth\/2fa\/challenge$/);
+    expect(init.method).toBe("POST");
+    const headers = init.headers as Record<string, string>;
+    expect(headers["authorization"]).toBe("Bearer challenge-abc");
+    expect(headers["content-type"]).toBe("application/json");
+    expect(init.body).toBe(JSON.stringify({ code: "123456" }));
+    expect(result).toBe("session-tok");
+  });
+});
+
 // ---------- #286 — session-expired event emission on 401 ----------
 
 describe("#286 apiFetch emits session-expired on 401", () => {
