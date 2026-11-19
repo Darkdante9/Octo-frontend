@@ -11,11 +11,18 @@ export type User = { id: string; email: string; username: string | null };
 export type AuthResult = { token: string; user: User };
 /** Returned by signup/login when the account still needs OTP verification. */
 export type VerificationRequired = { user_id: string; email_verification_required: true };
+/** Returned by login when the account has 2FA enabled; complete it via verify2fa(). */
+export type TwoFactorRequired = { two_factor_required: true; challenge_id: string };
 
 function needsVerification(x: AuthResult | VerificationRequired): x is VerificationRequired {
   return "email_verification_required" in x;
 }
 export { needsVerification };
+
+function needsTwoFactor(x: AuthResult | TwoFactorRequired): x is TwoFactorRequired {
+  return "two_factor_required" in x;
+}
+export { needsTwoFactor };
 
 export async function signup(
   email: string,
@@ -27,14 +34,24 @@ export async function signup(
   });
 }
 
-/** Login now returns a token only once the account is email-verified; otherwise an OTP is sent. */
+/** Login now returns a token only once the account is email-verified; otherwise an OTP is sent.
+ * If 2FA is enabled, returns a challenge id to complete via verify2fa(). */
 export async function login(
   email: string,
   password: string,
-): Promise<AuthResult | VerificationRequired> {
-  return apiFetch<AuthResult | VerificationRequired>("/v1/auth/login", {
+): Promise<AuthResult | VerificationRequired | TwoFactorRequired> {
+  return apiFetch<AuthResult | VerificationRequired | TwoFactorRequired>("/v1/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
+  });
+}
+
+/** Complete a 2FA login challenge: the challenge id is sent as the bearer token. */
+export async function verify2fa(challengeId: string, code: string): Promise<AuthResult> {
+  return apiFetch<AuthResult>("/auth/2fa/challenge", {
+    method: "POST",
+    token: challengeId,
+    body: JSON.stringify({ code }),
   });
 }
 

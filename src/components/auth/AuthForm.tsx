@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { signup, login, verifyEmail, resendOtp, needsVerification, saveToken, verify2fa } from "@/lib/auth";
+import { signup, login, verifyEmail, resendOtp, needsVerification, needsTwoFactor, saveToken, verify2fa } from "@/lib/auth";
 import { errorMessage } from "@/lib/api";
 import { assessPassword, MIN_PASSWORD_SCORE } from "@/lib/passwordStrength";
 import { PasswordStrengthMeter } from "@/lib/passwordStrength";
@@ -14,13 +14,6 @@ type Step = "credentials" | "verify" | "twofactor";
 
 const RESEND_COOLDOWN_SECS = 30;
 const MIN_PASSWORD_LENGTH = 8;
-
-/** Login response shape when a TOTP/recovery-code challenge is required. */
-type TwoFactorChallenge = { two_factor_required: true; challenge_id: string };
-
-function needsTwoFactor(x: unknown): x is TwoFactorChallenge {
-  return typeof x === "object" && x !== null && "two_factor_required" in x;
-}
 
 export function AuthForm({
   mode,

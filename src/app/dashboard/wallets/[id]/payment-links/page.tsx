@@ -36,7 +36,6 @@ export default function PaymentLinksPage({
   const { user, token, loading } = useAuth();
 
   const { wallet } = useWallet(id);
-  const [links, setLinks] = useState<PaymentLink[]>([]);
   const [creating, setCreating] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [created, setCreated] = useState<PaymentLink | null>(null);
