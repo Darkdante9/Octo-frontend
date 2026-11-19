@@ -170,22 +170,6 @@ export function disableTotp(token: string, password: string): Promise<void> {
   });
 }
 
-/**
- * Complete a login challenge with a TOTP or recovery code.
- *
- * Unauthenticated: the challenge token from the login response stands in for a session token.
- */
-export function verifyTotpChallenge(
-  challengeToken: string,
-  code: string,
-): Promise<{ token: string }> {
-  return apiFetch<{ token: string }>("/auth/2fa/challenge", {
-    method: "POST",
-    token: challengeToken,
-    body: JSON.stringify({ code }),
-  });
-}
-
 /** A single active session as returned by the backend. */
 export type Session = {
   id: string;
