@@ -62,8 +62,46 @@ function cspReportEndpoint(): string | undefined {
 
 const CSP_REPORT_GROUP = "csp-endpoint";
 
+type DeploymentEnv = "production" | "preview" | "staging" | "development";
+
+/**
+ * Resolve the deployment environment for environment-specific headers (HSTS).
+ *
+ * `OCTO_DEPLOY_ENV` is a project-specific override; otherwise we use `VERCEL_ENV`, which the
+ * platform sets to `production`, `preview`, or `development`. A local dev server (NODE_ENV
+ * development) is always development. Anything unrecognized in a production build fails safe to
+ * `preview`, so an unknown environment gets the short HSTS policy rather than the irreversible
+ * `includeSubDomains; preload` commitment.
+ */
+function deploymentEnv(): DeploymentEnv {
+  if (process.env.NODE_ENV === "development") return "development";
+  const raw = (
+    process.env.OCTO_DEPLOY_ENV ??
+    process.env.VERCEL_ENV ??
+    ""
+  )
+    .trim()
+    .toLowerCase();
+  switch (raw) {
+    case "production":
+    case "prod":
+      return "production";
+    case "preview":
+      return "preview";
+    case "staging":
+    case "stage":
+      return "staging";
+    case "development":
+    case "dev":
+      return "development";
+    default:
+      return "preview";
+  }
+}
+
 export function proxy(request: NextRequest) {
   const isDev = process.env.NODE_ENV === "development";
+  const deployEnv = deploymentEnv();
   const connect = `connect-src 'self' ${apiOrigin()} ${CLOUDINARY_UPLOAD}${isDev ? " ws: http://localhost:*" : ""}`;
   const img = `img-src 'self' blob: data: ${CLOUDINARY_CDN}`;
 
@@ -156,12 +194,16 @@ export function proxy(request: NextRequest) {
     "Permissions-Policy",
     "camera=(), microphone=(), geolocation=()",
   );
-  // Only send HSTS in production over HTTPS.
-  if (!isDev) {
+  // HSTS is environment-specific (see SECURITY.md): only production commits to
+  // `includeSubDomains; preload` for two years. Preview and staging hosts are ephemeral, so they
+  // get a short max-age with no subdomain/preload pinning. Development sends no HSTS at all.
+  if (deployEnv === "production") {
     response.headers.set(
       "Strict-Transport-Security",
       "max-age=63072000; includeSubDomains; preload",
     );
+  } else if (deployEnv === "preview" || deployEnv === "staging") {
+    response.headers.set("Strict-Transport-Security", "max-age=300");
   }
 
   return response;

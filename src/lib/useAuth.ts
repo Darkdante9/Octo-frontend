@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, createElement, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  createElement,
+  useContext,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { ApiError, errorMessage } from "./api";
@@ -57,12 +66,10 @@ function useAuthSession() {
     setRetryNonce((n) => n + 1);
   }
 
-  // The effects below read the latest sign-out and retry functions through refs, so each
-  // effect only re-runs when its own inputs change.
-  const signOutRef = useRef(doSignOut);
-  signOutRef.current = doSignOut;
-  const retryRef = useRef(retrySessionCheck);
-  retryRef.current = retrySessionCheck;
+  // The effects below read the latest sign-out and retry functions through effect events,
+  // so each effect only re-runs when its own inputs change.
+  const onSignOut = useEffectEvent((reason?: "expired") => doSignOut(reason));
+  const onRetry = useEffectEvent(() => retrySessionCheck());
 
   useEffect(() => {
     const startedAt = Date.now();
@@ -82,14 +89,14 @@ function useAuthSession() {
       .catch((err: unknown) => {
         if (!active) return;
         if (isAuthenticationFailure(err)) {
-          signOutRef.current("expired");
+          onSignOut("expired");
           return;
         }
         const message =
           errorMessage(err, "We could not verify your session. Check your connection and try again.");
         setAuthError(message);
         toast.error(message, {
-          action: { label: "Retry", onClick: () => retryRef.current() },
+          action: { label: "Retry", onClick: () => onRetry() },
         });
       })
       .finally(() => {
@@ -110,19 +117,19 @@ function useAuthSession() {
   useEffect(() => {
     // Handle 401 from any apiFetch anywhere on the page — apiFetch dispatches this event.
     function onSessionExpired() {
-      signOutRef.current("expired");
+      onSignOut("expired");
     }
 
     // Sign out when another tab removes the token from storage.
     function onStorage(e: StorageEvent) {
       if (e.key === "octo_token" && e.newValue === null) {
-        signOutRef.current();
+        onSignOut();
       }
     }
 
     // Sign out when another tab broadcasts a logout over BroadcastChannel.
     const unsubscribeLogout = subscribeToLogout(() => {
-      signOutRef.current();
+      onSignOut();
     });
 
     window.addEventListener("session-expired", onSessionExpired);

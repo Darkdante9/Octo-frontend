@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { errorMessage } from "./api";
 import type { Paginated } from "./pagination";
 
@@ -34,7 +34,10 @@ export function useCursorPagination<T>(
 
   const latestRequest = useRef(0);
   const fetchRef = useRef(fetchPage);
-  fetchRef.current = fetchPage;
+  // Keep the ref current for committed renders only; assigning during render is a lint error.
+  useLayoutEffect(() => {
+    fetchRef.current = fetchPage;
+  });
 
   const load = useCallback(
     (before: string | null, opts?: LoadOptions) => {
@@ -60,15 +63,17 @@ export function useCursorPagination<T>(
     [errorFallback],
   );
 
+  // A stable key for the caller's inputs, so the reset effect can depend on it directly.
+  const depsKey = JSON.stringify(deps);
+
   // Reset to page 1 whenever the caller's inputs change (for example the wallet id).
   useEffect(() => {
     if (!enabled) return;
     setCursors([null]);
     setPageIndex(0);
     load(null);
-    // The caller decides what counts as a new list through `deps`.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [load, enabled, ...deps]);
+    // `depsKey` stands in for the caller's inputs; the caller decides what counts as a new list.
+  }, [load, enabled, depsKey]);
 
   const refresh = useCallback(() => load(cursors[pageIndex] ?? null), [load, cursors, pageIndex]);
 
